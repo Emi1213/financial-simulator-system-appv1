@@ -953,72 +953,48 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
         {/* PASO 1: Configuración de Inversión e Información Laboral */}
         {currentStep === 1 && (
           <>
-            {/* Datos del Simulador Editables */}
-            <Card className="bg-blue-50 border-blue-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" />
-              Paso 1: Configurar su Propuesta de Inversión
-            </CardTitle>
-            <CardDescription>
-              Seleccione el producto de inversión que más le convenga y configure el monto y plazo según sus necesidades financieras
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Selector de Producto */}
-            <div>
-              <Label htmlFor="simulatorProducto">Producto de Inversión *</Label>
-              <Select
-                value={simulatorData.productoId}
-                onValueChange={handleProductoChange}
-              >
-                <SelectTrigger className={(errors.simulatorProducto) ? 'border-red-500' : ''}>
-                  <SelectValue placeholder="Seleccione el producto de inversión" />
-                </SelectTrigger>
-                <SelectContent>
-                  {productosInversion.map((producto) => (
-                    <SelectItem key={producto.id} value={producto.id.toString()}>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{producto.nombre}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.simulatorProducto && (
-                <p className="text-sm text-red-500 mt-1">{errors.simulatorProducto}</p>
-              )}
-            </div>
+            {/* Grid principal para el paso 1 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Columna izquierda: Configuración (2/3) */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Card de Configuración */}
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calculator className="h-5 w-5" />
+                      Configurar su Propuesta de Inversión
+                    </CardTitle>
+                    <CardDescription>
+                      Seleccione el producto de inversión que más le convenga y configure el monto y plazo según sus necesidades financieras
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Selector de Producto */}
+                    <div>
+                      <Label htmlFor="simulatorProducto">Producto de Inversión *</Label>
+                      <Select
+                        value={simulatorData.productoId}
+                        onValueChange={handleProductoChange}
+                      >
+                        <SelectTrigger className={(errors.simulatorProducto) ? 'border-red-500' : ''}>
+                          <SelectValue placeholder="Seleccione el producto de inversión" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {productosInversion.map((producto) => (
+                            <SelectItem key={producto.id} value={producto.id.toString()}>
+                              <div className="flex flex-col">
+                                <span className="font-medium">{producto.nombre}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.simulatorProducto && (
+                        <p className="text-sm text-red-500 mt-1">{errors.simulatorProducto}</p>
+                      )}
+                    </div>
 
-            {/* Información del producto seleccionado */}
-            {selectedProducto && (
-              <div className="bg-white p-4 rounded-lg border">
-                <h4 className="font-medium mb-3 text-gray-800">Información del Producto:</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-600 block">Tasa Anual</span>
-                    <span className="font-semibold text-green-600">{selectedProducto.tasa_anual}%</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600 block">Riesgo</span>
-                    <span className="font-semibold">{selectedProducto.tipo_inversion?.nivel_riesgo || 'N/A'}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600 block">Tipo Interés</span>
-                    <span className="font-semibold">{selectedProducto.tipo_inversion?.tipo_interes || 'N/A'}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600 block">Tipo Tasa</span>
-                    <span className="font-semibold">{selectedProducto.tipo_inversion?.tipo_tasa || 'N/A'}</span>
-                  </div>
-                </div>
-                <div className="mt-3 pt-3 border-t">
-                  <p className="text-xs text-gray-600">{selectedProducto.descripcion}</p>
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="simulatorMonto">
                   Monto de Inversión *
@@ -1079,12 +1055,101 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
                     ? `Mínimo: ${selectedProducto.plazo_min_meses} meses - Máximo: ${selectedProducto.plazo_max_meses} meses`
                     : 'Mínimo: 1 mes - Máximo: 180 meses'
                   }
-                </p>
+                    </p>
+                    </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Columna derecha: Card de Información del Producto */}
+              <div className="lg:col-span-1">
+                {selectedProducto ? (
+                  <Card className="bg-green-50 border-green-200 h-fit sticky top-4">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg text-green-800 flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5" />
+                        {selectedProducto.nombre}
+                      </CardTitle>
+                      <CardDescription className="text-green-700">
+                        Detalles del producto seleccionado
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Información principal */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white p-3 rounded-lg border border-green-200">
+                          <div className="text-xs text-green-600 font-medium">Tasa Anual</div>
+                          <div className="text-lg font-bold text-green-800">{selectedProducto.tasa_anual}%</div>
+                        </div>
+                        <div className="bg-white p-3 rounded-lg border border-green-200">
+                          <div className="text-xs text-green-600 font-medium">Nivel de Riesgo</div>
+                          <div className="text-sm font-semibold text-green-800">
+                            {selectedProducto.tipo_inversion?.nivel_riesgo || 'N/A'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Información adicional */}
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-green-600">Tipo de Interés:</span>
+                          <span className="font-medium">{selectedProducto.tipo_inversion?.tipo_interes || 'N/A'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-green-600">Tipo de Tasa:</span>
+                          <span className="font-medium">{selectedProducto.tipo_inversion?.tipo_tasa || 'N/A'}</span>
+                        </div>
+                      </div>
+
+                      {/* Descripción */}
+                      <div className="bg-white p-3 rounded-lg border border-green-200">
+                        <div className="text-xs text-green-600 font-medium mb-1">Descripción</div>
+                        <p className="text-xs text-gray-700 leading-relaxed">
+                          {selectedProducto.descripcion}
+                        </p>
+                      </div>
+
+                      {/* Límites */}
+                      <div className="bg-white p-3 rounded-lg border border-green-200">
+                        <div className="text-xs text-green-600 font-medium mb-2">Límites de Inversión</div>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex justify-between">
+                            <span>Monto mínimo:</span>
+                            <span className="font-medium">${selectedProducto.monto_minimo.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Monto máximo:</span>
+                            <span className="font-medium">${selectedProducto.monto_maximo.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Plazo mínimo:</span>
+                            <span className="font-medium">{selectedProducto.plazo_min_meses} meses</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Plazo máximo:</span>
+                            <span className="font-medium">{selectedProducto.plazo_max_meses} meses</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card className="bg-gray-50 border-gray-200 h-fit sticky top-4">
+                    <CardContent className="pt-6">
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
+                          <TrendingUp className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <p className="text-gray-500 text-sm">
+                          Seleccione un producto de inversión para ver sus detalles
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </div>
-
-          </CardContent>
-        </Card>
 
         {/* Información Laboral y Financiera */}
         <Card className="bg-purple-50 border-purple-200">
@@ -1178,32 +1243,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
                 )}
               </div>
 
-              {/* Capacidad financiera calculada */}
-              {formData.ingresos && formData.egresos && (
-                <div className="md:col-span-2">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-medium mb-2">Análisis de Capacidad Financiera</h4>
-                    <div className="text-sm space-y-1">
-                      <div>Disponible mensual: <strong>${(parseFloat(formData.ingresos) - parseFloat(formData.egresos)).toFixed(2)}</strong></div>
-                      {simulatorData.monto && (
-                        <div>Requerido (10% del monto): <strong>${(parseFloat(simulatorData.monto) * 0.1).toFixed(2)}</strong></div>
-                      )}
-                      {simulatorData.monto && formData.ingresos && formData.egresos && (
-                        <div className={`font-medium ${
-                          (parseFloat(formData.ingresos) - parseFloat(formData.egresos)) >= (parseFloat(simulatorData.monto) * 0.1) 
-                            ? 'text-green-600' 
-                            : 'text-red-600'
-                        }`}>
-                          {(parseFloat(formData.ingresos) - parseFloat(formData.egresos)) >= (parseFloat(simulatorData.monto) * 0.1) 
-                            ? '✓ Capacidad suficiente para esta inversión' 
-                            : '⚠ Capacidad insuficiente para esta inversión'
-                          }
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
+              
             </div>
 
             {errors.capacidad && (
