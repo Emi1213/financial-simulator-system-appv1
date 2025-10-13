@@ -254,6 +254,7 @@ export function RegisterView() {
                   personalData={personalData}
                   onNext={() => setCurrentStep(3)}
                   onBack={() => setCurrentStep(1)}
+                  showToast={showToast}
                 />
               )}
               
@@ -265,6 +266,7 @@ export function RegisterView() {
                   onBack={() => setCurrentStep(2)}
                   onSubmit={handleFinalSubmit}
                   isLoading={isLoading}
+                  showToast={showToast}
                 />
               )}
             </div>
@@ -652,7 +654,7 @@ function PersonalInfoStep({ data, setData, onNext }: any) {
 }
 
 // Componente para el Paso 2: Subir Documentos
-function DocumentUploadStep({ data, setData, personalData, onNext, onBack }: any) {
+function DocumentUploadStep({ data, setData, personalData, onNext, onBack, showToast }: any) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState({ frontal: false, reverso: false });
   const [previews, setPreviews] = useState({ frontal: '', reverso: '' });
@@ -911,7 +913,7 @@ function DocumentUploadStep({ data, setData, personalData, onNext, onBack }: any
 }
 
 // Componente para el Paso 3: Verificación Facial
-function VerificationStep({ data, setData, documentData, onBack, onSubmit, isLoading }: any) {
+function VerificationStep({ data, setData, documentData, onBack, onSubmit, isLoading, showToast }: any) {
   const [showCamera, setShowCamera] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [verifying, setVerifying] = useState(false);
