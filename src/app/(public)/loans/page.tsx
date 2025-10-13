@@ -3,6 +3,10 @@
 
 import { useState, useEffect } from 'react';
 import { exportToPDF, exportToExcel } from '@/utils/exportUtils';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 interface LoanType {
   id_credito: number;
@@ -290,11 +294,14 @@ export default function LoansPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="space-y-8">
           {/* Formulario de Simulación */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">Datos del crédito</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle>Datos del crédito</CardTitle>
+              <CardDescription>Configure los parámetros de su simulación</CardDescription>
+            </CardHeader>
+            <CardContent>
 
               <div className="space-y-4">
                 {/* Selector de Tipo de Crédito */}
@@ -418,22 +425,27 @@ export default function LoansPage() {
                     </ul>
                   </div>
                 )}
+              </div>
 
-                {/* Botón Calcular */}
-                <button
+              {/* Botón Calcular */}
+              <Button
                   onClick={calcularAmortizacion}
                   disabled={calculando || !selectedLoan}
-                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full"
                 >
                   {calculando ? 'Calculando...' : 'Calcular Amortización'}
-                </button>
-              </div>
-            </div>
+                </Button>
+              </CardContent>
+            </Card>
 
-            {/* Resultados Resumen */}
-            {resultado && (
-              <div className="bg-white rounded-lg shadow p-6 mt-6">
-                <h2 className="text-xl font-semibold mb-4">Resumen del Crédito</h2>
+          {/* Resultados Resumen */}
+          {resultado && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Resumen del Crédito</CardTitle>
+                <CardDescription>Detalles de su simulación financiera</CardDescription>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tipo:</span>
@@ -483,40 +495,44 @@ export default function LoansPage() {
                   </div>
                 </div>
 
+                <Separator className="my-4" />
+                
                 {/* Botones de Exportación */}
-                <div className="flex gap-3 mt-6">
-                  <button
+                <div className="flex gap-3">
+                  <Button
                     onClick={handleExportPDF}
                     disabled={exporting === 'pdf'}
-                    className="flex-1 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                    variant="destructive"
+                    className="flex-1"
                   >
-                    {exporting === 'pdf' ? 'Generando...' : 'PDF'}
-                  </button>
-                  <button
+                    {exporting === 'pdf' ? 'Generando...' : 'Exportar PDF'}
+                  </Button>
+                  <Button
                     onClick={handleExportExcel}
                     disabled={exporting === 'excel'}
-                    className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                    variant="default"
+                    className="flex-1 bg-green-600 hover:bg-green-700"
                   >
-                    {exporting === 'excel' ? 'Generando...' : 'Excel'}
-                  </button>
+                    {exporting === 'excel' ? 'Generando...' : 'Exportar Excel'}
+                  </Button>
                 </div>
-              </div>
-            )}
-          </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Tabla de Amortización */}
-          <div className="lg:col-span-2">
-            {resultado ? (
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-6 border-b">
-                  <h2 className="text-xl font-semibold">
-                    Tabla de Amortización - Sistema {tipoAmortizacion === 'frances' ? 'Francés' : 'Alemán'}
-                  </h2>
-                  <p className="text-gray-600">
-                    {selectedLoanData?.nombre}
-                    {resultado.cobrosIndirectosMensuales > 0 && ` - Incluye cobros indirectos: $${resultado.cobrosIndirectosMensuales.toFixed(2)}/mes`}
-                  </p>
-                </div>
+          {resultado ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  Tabla de Amortización - Sistema {tipoAmortizacion === 'frances' ? 'Francés' : 'Alemán'}
+                </CardTitle>
+                <CardDescription>
+                  {selectedLoanData?.nombre}
+                  {resultado.cobrosIndirectosMensuales > 0 && ` - Incluye cobros indirectos: $${resultado.cobrosIndirectosMensuales.toFixed(2)}/mes`}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
 
                 <div className="overflow-x-auto max-h-300">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -580,9 +596,11 @@ export default function LoansPage() {
                     </tbody>
                   </table>
                 </div>
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow p-12 text-center">
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="p-12 text-center">
                 <div className="text-gray-400 mb-4">
                   <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -594,9 +612,9 @@ export default function LoansPage() {
                 <p className="text-gray-600">
                   Selecciona un tipo de crédito y completa los datos, luego haz clic en "Calcular Amortización".
                 </p>
-              </div>
-            )}
-          </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
