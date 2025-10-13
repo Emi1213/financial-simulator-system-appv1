@@ -124,24 +124,24 @@ export const InvestmentsForm: React.FC = () => {
     };
 
     return (
-        <Card className="">
+        <Card className="bg-card border-border">
             <CardHeader className="pb-6">
-                <CardTitle className="text-green-800">Planifica tu Futuro Financiero</CardTitle>
-                <CardDescription className="text-green-700">
+                <CardTitle className="text-green-800 dark:text-green-400">Planifica tu Futuro Financiero</CardTitle>
+                <CardDescription className="text-green-700 dark:text-green-300">
                     Define los parámetros de tu inversión y descubre el potencial de crecimiento de tu capital
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-8">
                     {error && (
-                        <div className="p-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="p-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                             {error}
                         </div>
                     )}
 
                     <div className="space-y-6">
                         <Field data-invalid={!!fieldErrors.producto_inversion_id}>
-                            <FieldLabel className="text-sm font-medium text-gray-700">
+                            <FieldLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Producto de Inversión Preferido
                             </FieldLabel>
                             <FieldContent>
@@ -149,15 +149,15 @@ export const InvestmentsForm: React.FC = () => {
                                     value={formData.producto_inversion_id.toString()}
                                     onValueChange={(value) => handleInputChange('producto_inversion_id', parseInt(value) || 0)}
                                 >
-                                    <SelectTrigger className="border-green-200 focus:border-green-400 focus:ring-green-400 py-3">
+                                    <SelectTrigger className="border-green-200 dark:border-green-700 focus:border-green-400 dark:focus:border-green-500 focus:ring-green-400 dark:focus:ring-green-500 py-3 bg-background">
                                         <SelectValue placeholder="Elige tu opción de inversión ideal" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {productosInversion.map((producto) => (
                                             <SelectItem key={producto.id} value={producto.id.toString()}>
                                                 <div className="flex flex-col w-full py-1">
-                                                    <span className="font-medium text-gray-900">{producto.nombre}</span>
-                                                    <span className="text-sm text-green-600">
+                                                    <span className="font-medium text-gray-900 dark:text-gray-100">{producto.nombre}</span>
+                                                    <span className="text-sm text-green-600 dark:text-green-400">
                                                         {producto.tasa_anual}% anual • {producto.tipo_inversion?.nombre}
                                                     </span>
                                                 </div>
@@ -173,17 +173,17 @@ export const InvestmentsForm: React.FC = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Field data-invalid={!!fieldErrors.amount}>
-                                <FieldLabel className="text-sm font-medium text-gray-700">
+                                <FieldLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     Capital Inicial de Inversión
                                     {selectedProducto && (
-                                        <div className="mt-1 text-xs text-green-600 font-normal">
+                                        <div className="mt-1 text-xs text-green-600 dark:text-green-400 font-normal">
                                             ${selectedProducto.monto_minimo.toLocaleString()} - ${selectedProducto.monto_maximo.toLocaleString()}
                                         </div>
                                     )}
                                 </FieldLabel>
                                 <FieldContent>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
                                         <Input
                                             id="amount"
                                             type="number"
@@ -193,7 +193,7 @@ export const InvestmentsForm: React.FC = () => {
                                             min={selectedProducto?.monto_minimo || 0}
                                             max={selectedProducto?.monto_maximo}
                                             step="1000"
-                                            className="border-green-200 focus:border-green-400 focus:ring-green-400 pl-8 py-3"
+                                            className="border-green-200 dark:border-green-700 focus:border-green-400 dark:focus:border-green-500 focus:ring-green-400 dark:focus:ring-green-500 pl-8 py-3 bg-background"
                                             aria-invalid={!!fieldErrors.amount}
                                         />
                                     </div>
@@ -202,10 +202,10 @@ export const InvestmentsForm: React.FC = () => {
                             </Field>
 
                             <Field data-invalid={!!fieldErrors.term}>
-                                <FieldLabel className="text-sm font-medium text-gray-700">
+                                <FieldLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     Período de Inversión
                                     {selectedProducto && (
-                                        <div className="mt-1 text-xs text-green-600 font-normal">
+                                        <div className="mt-1 text-xs text-green-600 dark:text-green-400 font-normal">
                                             {selectedProducto.plazo_min_meses} - {selectedProducto.plazo_max_meses} meses
                                         </div>
                                     )}
@@ -220,10 +220,10 @@ export const InvestmentsForm: React.FC = () => {
                                             onChange={(e) => handleInputChange('term', parseInt(e.target.value) || 0)}
                                             min={selectedProducto?.plazo_min_meses || 1}
                                             max={selectedProducto?.plazo_max_meses || 360}
-                                            className="border-green-200 focus:border-green-400 focus:ring-green-400 py-3"
+                                            className="border-green-200 dark:border-green-700 focus:border-green-400 dark:focus:border-green-500 focus:ring-green-400 dark:focus:ring-green-500 py-3 bg-background"
                                             aria-invalid={!!fieldErrors.term}
                                         />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">meses</span>
+                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">meses</span>
                                     </div>
                                     {fieldErrors.term && <FieldError>{fieldErrors.term}</FieldError>}
                                 </FieldContent>
@@ -232,24 +232,24 @@ export const InvestmentsForm: React.FC = () => {
 
                         {/* Información del producto seleccionado */}
                         {selectedProducto && (
-                            <div className="mt-4 text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border">
+                            <div className="mt-4 text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
-                                        � <strong>Rentabilidad:</strong> {selectedProducto.tasa_anual}% anual
+                                        💰 <strong className="text-gray-900 dark:text-gray-100">Rentabilidad:</strong> {selectedProducto.tasa_anual}% anual
                                     </div>
                                     <div>
-                                        📊 <strong>Tipo:</strong> {selectedProducto.tipo_inversion?.nombre}
+                                        📊 <strong className="text-gray-900 dark:text-gray-100">Tipo:</strong> {selectedProducto.tipo_inversion?.nombre}
                                     </div>
                                     <div>
-                                        ⚖️ <strong>Riesgo:</strong> {selectedProducto.tipo_inversion?.nivel_riesgo}
+                                        ⚖️ <strong className="text-gray-900 dark:text-gray-100">Riesgo:</strong> {selectedProducto.tipo_inversion?.nivel_riesgo}
                                     </div>
                                     <div>
-                                        � <strong>Modalidad:</strong> {selectedProducto.tipo_inversion?.tipo_interes}
+                                        🔄 <strong className="text-gray-900 dark:text-gray-100">Modalidad:</strong> {selectedProducto.tipo_inversion?.tipo_interes}
                                     </div>
                                 </div>
                                 {selectedProducto.descripcion && (
-                                    <div className="mt-2 pt-2 border-t border-gray-200">
-                                        📝 <strong>Detalles:</strong> {selectedProducto.descripcion}
+                                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                                        📝 <strong className="text-gray-900 dark:text-gray-100">Detalles:</strong> {selectedProducto.descripcion}
                                     </div>
                                 )}
                             </div>
@@ -260,7 +260,7 @@ export const InvestmentsForm: React.FC = () => {
                         <Button
                             type="submit"
                             disabled={formData.producto_inversion_id <= 0 || !formData.amount || isCalculating || Object.values(fieldErrors).some(error => error)}
-                            className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg font-medium"
+                            className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white py-6 text-lg font-medium transition-colors"
                         >
                             {isCalculating ? (
                                 <>
