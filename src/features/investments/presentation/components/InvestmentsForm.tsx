@@ -124,7 +124,7 @@ export const InvestmentsForm: React.FC = () => {
     };
 
     return (
-        <Card className="border-green-200 bg-gradient-to-b from-green-50 to-emerald-50">
+        <Card className="">
             <CardHeader className="pb-6">
                 <CardTitle className="text-green-800">Planifica tu Futuro Financiero</CardTitle>
                 <CardDescription className="text-green-700">
@@ -171,13 +171,13 @@ export const InvestmentsForm: React.FC = () => {
 
 
 
-                        <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Field data-invalid={!!fieldErrors.amount}>
                                 <FieldLabel className="text-sm font-medium text-gray-700">
                                     Capital Inicial de Inversión
                                     {selectedProducto && (
                                         <div className="mt-1 text-xs text-green-600 font-normal">
-                                            Rango permitido: ${selectedProducto.monto_minimo.toLocaleString()} - ${selectedProducto.monto_maximo.toLocaleString()}
+                                            ${selectedProducto.monto_minimo.toLocaleString()} - ${selectedProducto.monto_maximo.toLocaleString()}
                                         </div>
                                     )}
                                 </FieldLabel>
@@ -187,22 +187,17 @@ export const InvestmentsForm: React.FC = () => {
                                         <Input
                                             id="amount"
                                             type="number"
-                                            placeholder="¿Cuánto deseas invertir?"
+                                            placeholder="¿Cuánto invertir?"
                                             value={formData.amount || ''}
                                             onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
                                             min={selectedProducto?.monto_minimo || 0}
                                             max={selectedProducto?.monto_maximo}
                                             step="1000"
-                                            className="border-green-200 focus:border-green-400 focus:ring-green-400 pl-8 py-4 text-lg"
+                                            className="border-green-200 focus:border-green-400 focus:ring-green-400 pl-8 py-3"
                                             aria-invalid={!!fieldErrors.amount}
                                         />
                                     </div>
                                     {fieldErrors.amount && <FieldError>{fieldErrors.amount}</FieldError>}
-                                    {selectedProducto && (
-                                        <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                                            💡 <strong>Rentabilidad:</strong> {selectedProducto.tasa_anual}% anual • <strong>Tipo:</strong> {selectedProducto.tipo_inversion?.nombre} • <strong>Riesgo:</strong> {selectedProducto.tipo_inversion?.nivel_riesgo}
-                                        </div>
-                                    )}
                                 </FieldContent>
                             </Field>
 
@@ -211,7 +206,7 @@ export const InvestmentsForm: React.FC = () => {
                                     Período de Inversión
                                     {selectedProducto && (
                                         <div className="mt-1 text-xs text-green-600 font-normal">
-                                            Duración disponible: {selectedProducto.plazo_min_meses} - {selectedProducto.plazo_max_meses} meses
+                                            {selectedProducto.plazo_min_meses} - {selectedProducto.plazo_max_meses} meses
                                         </div>
                                     )}
                                 </FieldLabel>
@@ -225,26 +220,40 @@ export const InvestmentsForm: React.FC = () => {
                                             onChange={(e) => handleInputChange('term', parseInt(e.target.value) || 0)}
                                             min={selectedProducto?.plazo_min_meses || 1}
                                             max={selectedProducto?.plazo_max_meses || 360}
-                                            className="border-green-200 focus:border-green-400 focus:ring-green-400 py-4 text-lg"
+                                            className="border-green-200 focus:border-green-400 focus:ring-green-400 py-3"
                                             aria-invalid={!!fieldErrors.term}
                                         />
                                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">meses</span>
                                     </div>
                                     {fieldErrors.term && <FieldError>{fieldErrors.term}</FieldError>}
-                                    {selectedProducto && (
-                                        <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                                            📊 <strong>Modalidad:</strong> {selectedProducto.tipo_inversion?.tipo_interes} • <strong>Tasa:</strong> {selectedProducto.tipo_inversion?.tipo_tasa}
-                                            {selectedProducto.descripcion && (
-                                                <>
-                                                    <br />
-                                                    📝 <strong>Detalles:</strong> {selectedProducto.descripcion}
-                                                </>
-                                            )}
-                                        </div>
-                                    )}
                                 </FieldContent>
                             </Field>
                         </div>
+
+                        {/* Información del producto seleccionado */}
+                        {selectedProducto && (
+                            <div className="mt-4 text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        � <strong>Rentabilidad:</strong> {selectedProducto.tasa_anual}% anual
+                                    </div>
+                                    <div>
+                                        📊 <strong>Tipo:</strong> {selectedProducto.tipo_inversion?.nombre}
+                                    </div>
+                                    <div>
+                                        ⚖️ <strong>Riesgo:</strong> {selectedProducto.tipo_inversion?.nivel_riesgo}
+                                    </div>
+                                    <div>
+                                        � <strong>Modalidad:</strong> {selectedProducto.tipo_inversion?.tipo_interes}
+                                    </div>
+                                </div>
+                                {selectedProducto.descripcion && (
+                                    <div className="mt-2 pt-2 border-t border-gray-200">
+                                        📝 <strong>Detalles:</strong> {selectedProducto.descripcion}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="pt-6">

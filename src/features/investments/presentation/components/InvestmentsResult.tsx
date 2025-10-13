@@ -188,8 +188,7 @@ export const InvestmentsResult: React.FC = () => {
                     onClick={handleSolicitarInversion}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                    <ArrowRight className="h-5 w-5 mr-2" />
-                    Solicitar esta Inversión
+                    Invertir ahora
                 </Button>
             </div>
         </div>
