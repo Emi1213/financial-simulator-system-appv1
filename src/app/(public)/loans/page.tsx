@@ -406,8 +406,8 @@ export default function LoansPage() {
                         <SelectValue placeholder="Seleccione el sistema" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="frances">Francés (Cuota Constante)</SelectItem>
-                        <SelectItem value="aleman">Alemán (Amortización Constante)</SelectItem>
+                        <SelectItem value="frances">Francés </SelectItem>
+                        <SelectItem value="aleman">Alemán </SelectItem>
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground">
@@ -417,27 +417,6 @@ export default function LoansPage() {
                     </p>
                   </div>
                 </div>
-
-                {/* Información de Cobros Indirectos */}
-                {selectedLoanData?.cobros_indirectos && selectedLoanData.cobros_indirectos.length > 0 && (
-                  <Card className="border-blue-200 bg-blue-50/50">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm text-blue-900">Cobros Adicionales</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="space-y-2">
-                        {selectedLoanData.cobros_indirectos.map((cobro, index) => (
-                          <div key={index} className="flex justify-between items-center text-xs">
-                            <span className="text-blue-800">{cobro.nombre}</span>
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
-                              {cobro.tipo_interes === 'porcentaje' ? `${cobro.interes}%` : `$${cobro.interes}`}
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
               </div>
 
               {/* Botón Calcular */}
@@ -465,7 +444,7 @@ export default function LoansPage() {
                         {selectedLoanData?.nombre} - Sistema {tipoAmortizacion === 'frances' ? 'Francés' : 'Alemán'}
                       </CardDescription>
                     </div>
-                    <Badge className="bg-green-600">${resultado.cuotaFinal.toFixed(0)}</Badge>
+                    <Badge className="border-green-400">${resultado.cuotaFinal.toFixed(0)}</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
@@ -511,6 +490,26 @@ export default function LoansPage() {
                     <div className="text-2xl font-bold text-blue-600">${resultado.totalPagar.toFixed(0)}</div>
                     <div className="text-xs text-muted-foreground">Total a Pagar</div>
                   </div>
+                  
+                  {/* Desglose de Cobros Adicionales */}
+                  {selectedLoanData?.cobros_indirectos && selectedLoanData.cobros_indirectos.length > 0 && (
+                    <>
+                      <Separator />
+                      <div className="space-y-2">
+                        <div className="text-xs font-medium text-blue-800">Cobros Adicionales:</div>
+                        <div className="space-y-1">
+                          {selectedLoanData.cobros_indirectos.map((cobro, index) => (
+                            <div key={index} className="flex justify-between items-center text-xs">
+                              <span className="text-blue-700">{cobro.nombre}</span>
+                              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 h-5 px-2">
+                                {cobro.tipo_interes === 'porcentaje' ? `${cobro.interes}%` : `$${cobro.interes}`}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                   <div className="pt-2">
                     <Dialog open={showAmortizationModal} onOpenChange={setShowAmortizationModal}>
                       <DialogTrigger asChild>
