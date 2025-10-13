@@ -38,8 +38,21 @@ export function RegisterView() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string; show: boolean }>({ 
+    type: 'error', 
+    message: '', 
+    show: false 
+  });
   const router = useRouter();
   const { config } = useInstitution();
+
+  // Función para mostrar toast
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToast({ type, message, show: true });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, show: false }));
+    }, 5000); // Auto-ocultar después de 5 segundos
+  };
 
   // Estados para cada paso
   const [personalData, setPersonalData] = useState<PersonalData>({
@@ -94,9 +107,11 @@ export function RegisterView() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error en el registro');
+        const errorMessage = data.error || data.message || 'Error en el registro';
+        throw new Error(errorMessage);
       }
 
+      showToast('success', data.message || 'Usuario registrado correctamente');
       setMessage({
         type: 'success',
         text: data.message || 'Usuario registrado correctamente'
@@ -109,6 +124,7 @@ export function RegisterView() {
 
     } catch (error: any) {
       console.error('Registration error:', error);
+      showToast('error', error.message || 'Error al registrar el usuario');
       setMessage({
         type: 'error',
         text: error.message || 'Error al registrar el usuario'
@@ -271,6 +287,55 @@ export function RegisterView() {
           </div>
         </div>
       </div>
+
+      {/* Toast Component */}
+      {toast.show && (
+        <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className={`max-w-md p-4 rounded-xl shadow-2xl border-2 ${
+            toast.type === 'success' 
+              ? 'bg-green-50 border-green-200 text-green-800' 
+              : 'bg-red-50 border-red-200 text-red-800'
+          }`}>
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                {toast.type === 'success' ? (
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+              </div>
+              <div className="flex-1">
+                <h4 className={`font-semibold ${
+                  toast.type === 'success' ? 'text-green-800' : 'text-red-800'
+                }`}>
+                  {toast.type === 'success' ? 'Éxito' : 'Error'}
+                </h4>
+                <p className={`text-sm mt-1 ${
+                  toast.type === 'success' ? 'text-green-700' : 'text-red-700'
+                }`}>
+                  {toast.message}
+                </p>
+              </div>
+              <button
+                onClick={() => setToast(prev => ({ ...prev, show: false }))}
+                className={`flex-shrink-0 ml-2 ${
+                  toast.type === 'success' 
+                    ? 'text-green-400 hover:text-green-600' 
+                    : 'text-red-400 hover:text-red-600'
+                } transition-colors`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -646,7 +711,9 @@ function DocumentUploadStep({ data, setData, personalData, onNext, onBack }: any
 
     } catch (error: any) {
       console.error('Error uploading image:', error);
-      setErrors({ ...errors, [type]: error.message || 'Error al subir la imagen' });
+      const errorMessage = error.message || 'Error al subir la imagen';
+      setErrors({ ...errors, [type]: errorMessage });
+      showToast('error', errorMessage);
     } finally {
       setUploading({ ...uploading, [type]: false });
     }
@@ -953,7 +1020,9 @@ function VerificationStep({ data, setData, documentData, onBack, onSubmit, isLoa
       setShowCamera(false);
     } catch (error: any) {
       console.error('Error processing selfie:', error);
-      setError(error.message || 'Error al procesar la selfie');
+      const errorMessage = error.message || 'Error al procesar la selfie';
+      setError(errorMessage);
+      showToast('error', errorMessage);
     } finally {
       setUploading(false);
       setVerifying(false);
