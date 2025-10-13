@@ -1,21 +1,21 @@
-import { NextResponse } from 'next/server';
-import { query } from '@/lib/database';
+import { NextResponse } from "next/server";
+import { query } from "@/lib/database";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log('🔍 [SELFIE API] Iniciando GET request');
-  console.log('🔍 [SELFIE API] Params recibidos:', params);
-  
+  console.log("🔍 [SELFIE API] Iniciando GET request");
+
   try {
-    const userId = params.id;
-    console.log('🔍 [SELFIE API] UserId extraído:', userId);
+    const { id: userId } = await params;
+    console.log("🔍 [SELFIE API] UserId extraído:", userId);
+    console.log("🔍 [SELFIE API] UserId extraído:", userId);
 
     if (!userId) {
-      console.log('❌ [SELFIE API] UserId faltante');
+      console.log("❌ [SELFIE API] UserId faltante");
       return NextResponse.json(
-        { error: 'ID de usuario requerido' },
+        { error: "ID de usuario requerido" },
         { status: 400 }
       );
     }
@@ -27,38 +27,40 @@ export async function GET(
       WHERE id_usuario = ?
     `;
 
-    console.log('📊 [SELFIE API] Ejecutando query con userId:', userId);
+    console.log("📊 [SELFIE API] Ejecutando query con userId:", userId);
     const results = await query(selfieQuery, [userId]);
-    console.log('📊 [SELFIE API] Resultados de la query:', results);
-    
+    console.log("📊 [SELFIE API] Resultados de la query:", results);
+
     if (!Array.isArray(results) || results.length === 0) {
-      console.log('❌ [SELFIE API] No se encontró perfil para userId:', userId);
+      console.log("❌ [SELFIE API] No se encontró perfil para userId:", userId);
       return NextResponse.json(
-        { error: 'Perfil de usuario no encontrado' },
+        { error: "Perfil de usuario no encontrado" },
         { status: 404 }
       );
     }
 
     const profile = results[0] as { selfie_uri: string };
-    console.log('📄 [SELFIE API] Profile encontrado:', profile);
+    console.log("📄 [SELFIE API] Profile encontrado:", profile);
 
     if (!profile.selfie_uri) {
-      console.log('⚠️ [SELFIE API] Selfie URI está vacía o null');
+      console.log("⚠️ [SELFIE API] Selfie URI está vacía o null");
       return NextResponse.json(
-        { error: 'No tiene selfie registrada en su perfil' },
+        { error: "No tiene selfie registrada en su perfil" },
         { status: 404 }
       );
     }
 
-    console.log('✅ [SELFIE API] Selfie encontrada, enviando respuesta');
+    console.log("✅ [SELFIE API] Selfie encontrada, enviando respuesta");
     return NextResponse.json({
-      selfie_uri: profile.selfie_uri
+      selfie_uri: profile.selfie_uri,
     });
-
   } catch (error: any) {
-    console.error('💥 [SELFIE API] Error obteniendo selfie del usuario:', error);
+    console.error(
+      "💥 [SELFIE API] Error obteniendo selfie del usuario:",
+      error
+    );
     return NextResponse.json(
-      { error: 'Error interno del servidor: ' + error.message },
+      { error: "Error interno del servidor: " + error.message },
       { status: 500 }
     );
   }

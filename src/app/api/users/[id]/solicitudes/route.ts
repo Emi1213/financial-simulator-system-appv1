@@ -4,10 +4,10 @@ import { query } from '@/lib/database';
 // GET - Obtener solicitudes de inversión de un usuario específico
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = params.id;
+    const { id: userId } = await params;
 
     if (!userId) {
       return NextResponse.json(
