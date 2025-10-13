@@ -34,7 +34,7 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
 
   return (
     <div className="w-full">
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden text-black">
         {/* Header simplificado */}
         <div className="px-8 py-8 text-center border-b border-gray-100">
           <div className="flex justify-center mb-4">

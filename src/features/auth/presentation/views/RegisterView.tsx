@@ -408,7 +408,7 @@ function PersonalInfoStep({ data, setData, onNext }: any) {
         <p className="text-gray-600">Completa tus datos personales para continuar</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
         {/* Primer Nombre */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -557,7 +557,7 @@ function PersonalInfoStep({ data, setData, onNext }: any) {
       </div>
 
       {/* Contraseñas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-black">
         {/* Contraseña */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -599,7 +599,7 @@ function PersonalInfoStep({ data, setData, onNext }: any) {
 
         {/* Confirmar Contraseña */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-sm font-semibold mb-2 text-black">
             Confirmar Contraseña *
           </label>
           <div className="relative">
@@ -777,7 +777,7 @@ function DocumentUploadStep({ data, setData, personalData, onNext, onBack, showT
                   variant="ghost"
                   size="sm"
                   onClick={() => document.getElementById(`file-${type}`)?.click()}
-                  className="text-sm"
+                  className="text-sm bg-black"
                 >
                   Cambiar imagen
                 </Button>
