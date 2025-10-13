@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface LoanType {
   id_credito: number;
@@ -305,107 +308,113 @@ export default function LoansPage() {
 
               <div className="space-y-4">
                 {/* Selector de Tipo de Crédito */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tipo de Crédito *
-                  </label>
-                  <select
-                    value={selectedLoan}
-                    onChange={(e) => setSelectedLoan(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Seleccione un crédito</option>
-                    {loanTypes.filter(loan => loan.estado).map((loan) => (
-                      <option key={loan.id_credito} value={loan.id_credito}>
-                        {loan.nombre} - {loan.interes}% anual
-                      </option>
-                    ))}
-                  </select>
+                <div className="space-y-2">
+                  <Label htmlFor="loan-type">Tipo de Crédito *</Label>
+                  <Select value={selectedLoan} onValueChange={setSelectedLoan}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione un crédito" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {loanTypes.filter(loan => loan.estado).map((loan) => (
+                        <SelectItem key={loan.id_credito} value={loan.id_credito.toString()}>
+                          {loan.nombre} - {loan.interes}% anual
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Monto del Crédito */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Monto del Crédito ($)
-                  </label>
-                  <input
+                <div className="space-y-2">
+                  <Label htmlFor="amount">Monto del Crédito ($)</Label>
+                  <Input
+                    id="amount"
                     type="number"
                     value={monto}
                     onChange={(e) => setMonto(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     min="1000"
                     step="1000"
+                    placeholder="Ingrese el monto"
                   />
                 </div>
 
                 {/* Tasa de Interés (solo lectura) */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tasa de Interés Anual (%)
-                  </label>
-                  <input
-                    type="number"
-                    value={tasaInteres}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-                    readOnly
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
+                <div className="space-y-2">
+                  <Label htmlFor="interest-rate">Tasa de Interés Anual (%)</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      id="interest-rate"
+                      type="number"
+                      value={tasaInteres}
+                      readOnly
+                      className="bg-muted"
+                    />
+                    <Badge variant="secondary">{tasaInteres}% anual</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
                     Tasa definida por el tipo de crédito seleccionado
                   </p>
                 </div>
 
                 {/* Plazo */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Plazo (meses) - {plazoMin} a {plazoMax}
-                  </label>
-                  <input
-                    type="range"
-                    value={plazo}
-                    onChange={(e) => setPlazo(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    min={plazoMin}
-                    max={plazoMax}
-                    step="1"
-                  />
-                  <div className="flex justify-between text-sm text-gray-600 mt-1">
-                    <span>{plazoMin}</span>
-                    <span className="font-semibold">{plazo} meses</span>
-                    <span>{plazoMax}</span>
+                <div className="space-y-2">
+                  <Label htmlFor="term">Plazo de Financiamiento</Label>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPlazo(Math.max(plazoMin, plazo - 1))}
+                      disabled={plazo <= plazoMin}
+                    >
+                      -
+                    </Button>
+                    <div className="flex-1 text-center">
+                      <Input
+                        id="term"
+                        type="number"
+                        value={plazo}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          if (value >= plazoMin && value <= plazoMax) {
+                            setPlazo(value);
+                          }
+                        }}
+                        min={plazoMin}
+                        max={plazoMax}
+                        className="text-center font-semibold"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPlazo(Math.min(plazoMax, plazo + 1))}
+                      disabled={plazo >= plazoMax}
+                    >
+                      +
+                    </Button>
                   </div>
-                  <input
-                    type="number"
-                    value={plazo}
-                    onChange={(e) => {
-                      const value = Number(e.target.value);
-                      if (value >= plazoMin && value <= plazoMax) {
-                        setPlazo(value);
-                      }
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
-                    min={plazoMin}
-                    max={plazoMax}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Plazo definido por el tipo de crédito seleccionado
-                  </p>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Mín: {plazoMin} meses</span>
+                    <Badge variant="outline">{plazo} meses</Badge>
+                    <span>Máx: {plazoMax} meses</span>
+                  </div>
                 </div>
 
                 {/* Tipo de Amortización */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sistema de Amortización
-                  </label>
-                  <select
-                    value={tipoAmortizacion}
-                    onChange={(e) => setTipoAmortizacion(e.target.value as TipoAmortizacion)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="frances">Francés (Cuota Constante)</option>
-                    <option value="aleman">Alemán (Amortización Constante)</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">
+                <div className="space-y-2">
+                  <Label htmlFor="amortization">Sistema de Amortización</Label>
+                  <Select value={tipoAmortizacion} onValueChange={(value: TipoAmortizacion) => setTipoAmortizacion(value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccione el sistema" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="frances">Francés (Cuota Constante)</SelectItem>
+                      <SelectItem value="aleman">Alemán (Amortización Constante)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
                     {tipoAmortizacion === 'frances'
                       ? 'Cuota mensual constante, interés decreciente'
                       : 'Amortización constante, cuota decreciente'}
@@ -414,16 +423,23 @@ export default function LoansPage() {
 
                 {/* Información de Cobros Indirectos */}
                 {selectedLoanData?.cobros_indirectos && selectedLoanData.cobros_indirectos.length > 0 && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-                    <h3 className="text-sm font-medium text-yellow-800 mb-2">Cobros Indirectos Incluidos:</h3>
-                    <ul className="text-xs text-yellow-700 space-y-1">
-                      {selectedLoanData.cobros_indirectos.map((cobro, index) => (
-                        <li key={index}>
-                          • {cobro.nombre}: {cobro.tipo_interes === 'porcentaje' ? `${cobro.interes}%` : `$${cobro.interes}`}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <Card className="border-blue-200 bg-blue-50/50">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm text-blue-900">Cobros Adicionales</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-2">
+                        {selectedLoanData.cobros_indirectos.map((cobro, index) => (
+                          <div key={index} className="flex justify-between items-center text-xs">
+                            <span className="text-blue-800">{cobro.nombre}</span>
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
+                              {cobro.tipo_interes === 'porcentaje' ? `${cobro.interes}%` : `$${cobro.interes}`}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
 
@@ -497,25 +513,15 @@ export default function LoansPage() {
 
                 <Separator className="my-4" />
                 
-                {/* Botones de Exportación */}
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleExportPDF}
-                    disabled={exporting === 'pdf'}
-                    variant="destructive"
-                    className="flex-1"
-                  >
-                    {exporting === 'pdf' ? 'Generando...' : 'Exportar PDF'}
-                  </Button>
-                  <Button
-                    onClick={handleExportExcel}
-                    disabled={exporting === 'excel'}
-                    variant="default"
-                    className="flex-1 bg-green-600 hover:bg-green-700"
-                  >
-                    {exporting === 'excel' ? 'Generando...' : 'Exportar Excel'}
-                  </Button>
-                </div>
+                {/* Botón de Exportación */}
+                <Button
+                  onClick={handleExportPDF}
+                  disabled={exporting === 'pdf'}
+                  variant="outline"
+                  className="w-full border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300"
+                >
+                  {exporting === 'pdf' ? 'Generando PDF...' : 'Descargar PDF'}
+                </Button>
               </CardContent>
             </Card>
           )}
