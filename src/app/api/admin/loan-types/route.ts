@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { query } from '@/lib/database';
+import { NextResponse } from "next/server";
+import { query } from "@/lib/database";
 
 interface DatabaseLoan {
   id_credito: number;
@@ -44,8 +44,8 @@ export async function GET() {
       LEFT JOIN indirect i ON ci.id_indirecto = i.id_indirecto
       ORDER BY c.id_credito DESC
     `;
-    
-    const results = await query(sql) as DatabaseLoan[];
+
+    const results = (await query(sql)) as DatabaseLoan[];
 
     // Agrupar créditos con sus cobros
     const grouped = Object.values(
@@ -61,7 +61,7 @@ export async function GET() {
             plazo_max: row.plazo_max,
             informacion: row.informacion,
             estado: row.estado === 1,
-            cobros_indirectos: []
+            cobros_indirectos: [],
           };
         }
         if (row.id_indirecto != null && row.nombre_indirecto) {
@@ -70,7 +70,7 @@ export async function GET() {
             nombre: row.nombre_indirecto,
             tipo: row.tipo_indirecto,
             interes: row.interes_indirecto,
-            tipo_interes: row.tipo_interes_indirecto
+            tipo_interes: row.tipo_interes_indirecto,
           });
         }
         return acc;
@@ -79,8 +79,11 @@ export async function GET() {
 
     return NextResponse.json(grouped);
   } catch (error: any) {
-    console.error('❌ Error al obtener créditos:', error);
-    return NextResponse.json({ error: 'Error al cargar los créditos: ' + error.message }, { status: 500 });
+    console.error("❌ Error al obtener créditos:", error);
+    return NextResponse.json(
+      { error: "Error al cargar los créditos: " + error.message },
+      { status: 500 }
+    );
   }
 }
 
@@ -90,11 +93,14 @@ export async function GET() {
 export async function GET_INDIRECTS() {
   try {
     const sql = `SELECT * FROM indirect WHERE tipo = 'directo' ORDER BY nombre ASC`;
-    const results = await query(sql) as any[];
+    const results = (await query(sql)) as any[];
     return NextResponse.json(results);
   } catch (error: any) {
-    console.error('❌ Error al obtener cobros indirectos:', error);
-    return NextResponse.json({ error: 'Error al cargar cobros indirectos' }, { status: 500 });
+    console.error("❌ Error al obtener cobros indirectos:", error);
+    return NextResponse.json(
+      { error: "Error al cargar cobros indirectos" },
+      { status: 500 }
+    );
   }
 }
 
@@ -106,7 +112,10 @@ export async function POST(request: Request) {
     const data = await request.json();
 
     if (!data.nombre || !data.tipo || data.interes === undefined) {
-      return NextResponse.json({ error: 'Nombre, tipo e interés son requeridos' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Nombre, tipo e interés son requeridos" },
+        { status: 400 }
+      );
     }
 
     const sqlCredito = `
@@ -114,33 +123,43 @@ export async function POST(request: Request) {
         (nombre, descripcion, tipo, interes, plazo_min, plazo_max, informacion, estado)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    
-    const result = await query(sqlCredito, [
+
+    const result = (await query(sqlCredito, [
       data.nombre,
-      data.descripcion || '',
+      data.descripcion || "",
       data.tipo,
       data.interes,
       data.plazo_min || 1,
       data.plazo_max || 12,
-      data.informacion || '',
-      data.estado ? 1 : 0
-    ]) as any;
+      data.informacion || "",
+      data.estado ? 1 : 0,
+    ])) as any;
 
     const id_credito = result.insertId;
 
     // Insertar cobros indirectos solo si hay IDs válidos
-    if (Array.isArray(data.cobros_indirectos) && data.cobros_indirectos.length > 0) {
+    if (
+      Array.isArray(data.cobros_indirectos) &&
+      data.cobros_indirectos.length > 0
+    ) {
       for (const id_indirecto of data.cobros_indirectos) {
         if (id_indirecto != null) {
-          await query('INSERT INTO credito_indirecto (id_credito, id_indirecto) VALUES (?, ?)', [id_credito, id_indirecto]);
+          // Usar INSERT IGNORE para evitar errores de duplicados
+          await query(
+            "INSERT IGNORE INTO credito_indirecto (id_credito, id_indirecto) VALUES (?, ?)",
+            [id_credito, id_indirecto]
+          );
         }
       }
     }
 
     return NextResponse.json({ success: true, id_credito });
   } catch (error: any) {
-    console.error('❌ Error al crear crédito:', error);
-    return NextResponse.json({ error: 'Error al crear el crédito: ' + error.message }, { status: 500 });
+    console.error("❌ Error al crear crédito:", error);
+    return NextResponse.json(
+      { error: "Error al crear el crédito: " + error.message },
+      { status: 500 }
+    );
   }
 }
 
@@ -151,8 +170,16 @@ export async function PUT(request: Request) {
   try {
     const data = await request.json();
 
-    if (!data.id_credito) return NextResponse.json({ error: 'ID del crédito es requerido' }, { status: 400 });
-    if (!data.nombre || !data.tipo || data.interes === undefined) return NextResponse.json({ error: 'Nombre, tipo e interés son requeridos' }, { status: 400 });
+    if (!data.id_credito)
+      return NextResponse.json(
+        { error: "ID del crédito es requerido" },
+        { status: 400 }
+      );
+    if (!data.nombre || !data.tipo || data.interes === undefined)
+      return NextResponse.json(
+        { error: "Nombre, tipo e interés son requeridos" },
+        { status: 400 }
+      );
 
     // Actualizar información principal
     const sql = `
@@ -161,33 +188,42 @@ export async function PUT(request: Request) {
         plazo_min = ?, plazo_max = ?, informacion = ?, estado = ?
       WHERE id_credito = ?
     `;
-    
+
     await query(sql, [
       data.nombre,
-      data.descripcion || '',
+      data.descripcion || "",
       data.tipo,
       data.interes,
       data.plazo_min || 1,
       data.plazo_max || 12,
-      data.informacion || '',
+      data.informacion || "",
       data.estado ? 1 : 0,
-      data.id_credito
+      data.id_credito,
     ]);
 
     // Actualizar cobros indirectos solo si el array está definido
     if (Array.isArray(data.cobros_indirectos)) {
-      await query('DELETE FROM credito_indirecto WHERE id_credito = ?', [data.id_credito]);
+      await query("DELETE FROM credito_indirecto WHERE id_credito = ?", [
+        data.id_credito,
+      ]);
       for (const id_indirecto of data.cobros_indirectos) {
         if (id_indirecto != null) {
-          await query('INSERT INTO credito_indirecto (id_credito, id_indirecto) VALUES (?, ?)', [data.id_credito, id_indirecto]);
+          // Usar INSERT IGNORE para evitar errores de duplicados
+          await query(
+            "INSERT IGNORE INTO credito_indirecto (id_credito, id_indirecto) VALUES (?, ?)",
+            [data.id_credito, id_indirecto]
+          );
         }
       }
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('❌ Error al actualizar crédito:', error);
-    return NextResponse.json({ error: 'Error al actualizar el crédito: ' + error.message }, { status: 500 });
+    console.error("❌ Error al actualizar crédito:", error);
+    return NextResponse.json(
+      { error: "Error al actualizar el crédito: " + error.message },
+      { status: 500 }
+    );
   }
 }
 
@@ -197,15 +233,24 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const id_credito = searchParams.get('id');
-    if (!id_credito) return NextResponse.json({ error: 'ID del crédito es requerido' }, { status: 400 });
+    const id_credito = searchParams.get("id");
+    if (!id_credito)
+      return NextResponse.json(
+        { error: "ID del crédito es requerido" },
+        { status: 400 }
+      );
 
-    await query('DELETE FROM credito_indirecto WHERE id_credito = ?', [id_credito]);
-    await query('DELETE FROM creditostabla WHERE id_credito = ?', [id_credito]);
+    await query("DELETE FROM credito_indirecto WHERE id_credito = ?", [
+      id_credito,
+    ]);
+    await query("DELETE FROM creditostabla WHERE id_credito = ?", [id_credito]);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('❌ Error al eliminar crédito:', error);
-    return NextResponse.json({ error: 'Error al eliminar el crédito: ' + error.message }, { status: 500 });
+    console.error("❌ Error al eliminar crédito:", error);
+    return NextResponse.json(
+      { error: "Error al eliminar el crédito: " + error.message },
+      { status: 500 }
+    );
   }
 }

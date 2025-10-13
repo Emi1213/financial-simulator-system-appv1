@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { MenuItem } from '../../types';
+import Link from "next/link";
+import { MenuItem } from "../../types";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -23,16 +23,22 @@ export function MobileMenu({
       {/* Overlay con animación de fade */}
       <div
         className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300 ${
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
+        style={{
+          display: isOpen ? "block" : "none",
+        }}
         onClick={onClose}
       />
 
       {/* Sidebar Menu con animación de slide desde la derecha */}
       <div
         className={`fixed top-0 right-0 w-80 h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 z-50 shadow-2xl overflow-y-auto transform transition-transform duration-300 ease-in-out border-l border-slate-700 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isOpen ? "translate-x-0" : "translate-x-full"
         }`}
+        style={{
+          display: isOpen ? "block" : "none",
+        }}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-700">
@@ -47,7 +53,14 @@ export function MobileMenu({
             className="text-slate-400 hover:text-white w-8 h-8 rounded-lg hover:bg-slate-700/50 flex items-center justify-center transition-all duration-200"
             aria-label="Cerrar menú"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -64,16 +77,23 @@ export function MobileMenu({
                     onClick={() => onToggleSubmenu(item.label)}
                     className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-700/50 rounded-xl transition-all duration-200 group"
                   >
-                    <span className="font-medium text-slate-200 group-hover:text-white">{item.label}</span>
+                    <span className="font-medium text-slate-200 group-hover:text-white">
+                      {item.label}
+                    </span>
                     <svg
                       className={`w-5 h-5 text-slate-400 group-hover:text-white transform transition-all duration-200 ${
-                        activeSubmenu === item.label ? 'rotate-180' : ''
+                        activeSubmenu === item.label ? "rotate-180" : ""
                       }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
 
@@ -81,8 +101,8 @@ export function MobileMenu({
                   <div
                     className={`ml-2 space-y-1 overflow-hidden transition-all duration-300 ${
                       activeSubmenu === item.label
-                        ? 'max-h-96 mt-2 opacity-100'
-                        : 'max-h-0 opacity-0'
+                        ? "max-h-96 mt-2 opacity-100"
+                        : "max-h-0 opacity-0"
                     }`}
                   >
                     {item.subItems?.map((subItem) => (
@@ -106,7 +126,7 @@ export function MobileMenu({
                 </div>
               ) : (
                 <Link
-                  href={item.href || '#'}
+                  href={item.href || "#"}
                   onClick={onClose}
                   className="flex items-center p-4 text-slate-200 hover:text-white hover:bg-slate-700/50 rounded-xl transition-all duration-200 group"
                 >
@@ -117,7 +137,12 @@ export function MobileMenu({
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </Link>
               )}

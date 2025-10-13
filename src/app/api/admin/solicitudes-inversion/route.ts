@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { query } from '@/lib/database';
+import { NextResponse } from "next/server";
+import { query } from "@/lib/database";
 
 /* ================================
    GET - Obtener todas las solicitudes de inversión
@@ -32,11 +32,22 @@ export async function GET() {
       ORDER BY si.fecha_solicitud DESC`
     );
 
-    return NextResponse.json(solicitudes);
+    const solicitudesArray = Array.isArray(solicitudes) ? solicitudes : [];
+    const solicitudesFormateadas = solicitudesArray.map((solicitud: any) => ({
+      ...solicitud,
+      monto: Number(solicitud.monto) || 0,
+      plazo_meses: Number(solicitud.plazo_meses) || 0,
+      ingresos: Number(solicitud.ingresos) || 0,
+      egresos: Number(solicitud.egresos) || 0,
+      tasa_anual: Number(solicitud.tasa_anual) || 0,
+      ganancia_estimada: Number(solicitud.ganancia_estimada) || 0,
+    }));
+
+    return NextResponse.json(solicitudesFormateadas);
   } catch (error: any) {
-    console.error('Error obteniendo solicitudes:', error);
+    console.error("Error obteniendo solicitudes:", error);
     return NextResponse.json(
-      { error: 'Error interno: ' + error.message },
+      { error: "Error interno: " + error.message },
       { status: 500 }
     );
   }
@@ -52,28 +63,28 @@ export async function POST(request: Request) {
 
     // Validación básica
     if (!idSolicitud || !nuevoEstado) {
-      return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 });
+      return NextResponse.json({ error: "Datos incompletos" }, { status: 400 });
     }
 
     // Solo se aceptan los valores reales de tu ENUM ('Aprobado', 'Rechazado')
-    if (!['Aprobado', 'Rechazado'].includes(nuevoEstado)) {
-      return NextResponse.json({ error: 'Estado inválido' }, { status: 400 });
+    if (!["Aprobado", "Rechazado"].includes(nuevoEstado)) {
+      return NextResponse.json({ error: "Estado inválido" }, { status: 400 });
     }
 
     await query(
       `UPDATE solicitud_inversion
        SET estado = ?, observacion_admin = ?
        WHERE id_solicitud = ?`,
-      [nuevoEstado, observacion || '', idSolicitud]
+      [nuevoEstado, observacion || "", idSolicitud]
     );
 
     return NextResponse.json({
-      message: `Solicitud ${nuevoEstado.toLowerCase()} exitosamente`
+      message: `Solicitud ${nuevoEstado.toLowerCase()} exitosamente`,
     });
   } catch (error: any) {
-    console.error('Error al gestionar solicitud:', error);
+    console.error("Error al gestionar solicitud:", error);
     return NextResponse.json(
-      { error: 'Error interno: ' + error.message },
+      { error: "Error interno: " + error.message },
       { status: 500 }
     );
   }

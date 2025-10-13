@@ -1,4 +1,8 @@
-import { SolicitudInversion, GestionSolicitudRequest, SolicitudStats } from '../types';
+import {
+  SolicitudInversion,
+  GestionSolicitudRequest,
+  SolicitudStats,
+} from "../types";
 
 export class RequestInvestmentsService {
   /**
@@ -6,13 +10,13 @@ export class RequestInvestmentsService {
    */
   static async getSolicitudes(): Promise<SolicitudInversion[]> {
     try {
-      const response = await fetch('/api/admin/solicitudes-inversion');
+      const response = await fetch("/api/admin/solicitudes-inversion");
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
       return await response.json();
     } catch (error) {
-      console.error('Error obteniendo solicitudes:', error);
+      console.error("Error obteniendo solicitudes:", error);
       throw error;
     }
   }
@@ -20,12 +24,14 @@ export class RequestInvestmentsService {
   /**
    * Gestionar solicitud (aprobar/rechazar)
    */
-  static async gestionarSolicitud(data: GestionSolicitudRequest): Promise<void> {
+  static async gestionarSolicitud(
+    data: GestionSolicitudRequest
+  ): Promise<void> {
     try {
-      const response = await fetch('/api/admin/solicitudes-inversion', {
-        method: 'POST',
+      const response = await fetch("/api/admin/solicitudes-inversion", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
@@ -35,7 +41,7 @@ export class RequestInvestmentsService {
         throw new Error(errorData.error || `Error ${response.status}`);
       }
     } catch (error) {
-      console.error('Error gestionando solicitud:', error);
+      console.error("Error gestionando solicitud:", error);
       throw error;
     }
   }
@@ -43,24 +49,37 @@ export class RequestInvestmentsService {
   /**
    * Calcular estadísticas de solicitudes
    */
-  static calcularEstadisticas(solicitudes: SolicitudInversion[]): SolicitudStats {
+  static calcularEstadisticas(
+    solicitudes: SolicitudInversion[]
+  ): SolicitudStats {
+    console.log("Solicitudes recibidas:", solicitudes);
+
     const stats = solicitudes.reduce(
       (acc, solicitud) => {
         acc.total++;
-        acc.montoTotal += solicitud.monto;
-        
+
+        const monto = Number(solicitud.monto);
+        if (!isNaN(monto) && monto > 0) {
+          acc.montoTotal += monto;
+        } else {
+          console.warn(
+            `Monto inválido para solicitud ${solicitud.id_solicitud}:`,
+            solicitud.monto
+          );
+        }
+
         switch (solicitud.estado) {
-          case 'Pendiente':
+          case "Pendiente":
             acc.pendientes++;
             break;
-          case 'Aprobado':
+          case "Aprobado":
             acc.aprobadas++;
             break;
-          case 'Rechazado':
+          case "Rechazado":
             acc.rechazadas++;
             break;
         }
-        
+
         return acc;
       },
       {
@@ -72,6 +91,7 @@ export class RequestInvestmentsService {
       }
     );
 
+    console.log("Estadísticas calculadas:", stats);
     return stats;
   }
 }

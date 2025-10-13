@@ -1,133 +1,128 @@
 // src/features/Navbar/presentation/views/NavbarView.tsx
-'use client';
+"use client";
 
-import { useMemo } from 'react';
-import { useNavbar } from '../../hooks/useNavbar';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { MenuItem } from '../../types';
-import { Logo } from '../components/Logo';
-import { MenuButton } from '../components/MenuButton';
-import { MobileMenu } from '../components/MobileMenu';
-import { AuthButtons } from '../components/AuthButtons';
+import { useMemo } from "react";
+import { useNavbar } from "../../hooks/useNavbar";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { MenuItem } from "../../types";
+import { Logo } from "../components/Logo";
+import { MenuButton } from "../components/MenuButton";
+import { MobileMenu } from "../components/MobileMenu";
+import { AuthButtons } from "../components/AuthButtons";
 
 export function NavbarView() {
-  const { isMenuOpen, activeSubmenu, toggleMenu, closeMenu, toggleSubmenu } = useNavbar();
+  const { isMenuOpen, activeSubmenu, toggleMenu, closeMenu, toggleSubmenu } =
+    useNavbar();
   const { isAuthenticated, user, logout } = useAuth();
 
   // Generar menú dinámicamente según el rol del usuario
   const menuItems: MenuItem[] = useMemo(() => {
     // Menú para administradores
-    if (isAuthenticated && user?.role === 'admin') {
+    if (isAuthenticated && user?.role === "admin") {
       return [
         {
-          label: 'Configuración',
+          label: "Configuración",
           subItems: [
             {
-              label: 'Información de la Institución',
-              href: '/admin/config/institution',
-              description: 'Configurar datos de la institución financiera',
+              label: "Información de la Institución",
+              href: "/admin/config/institution",
+              description: "Configurar datos de la institución financiera",
             },
             {
-              label: 'Gestión de Créditos',
-              href: '/admin/config/loan-types',
-              description: 'Agregar y gestionar tipos de crédito',
+              label: "Gestión de Créditos",
+              href: "/admin/config/loan-types",
+              description: "Agregar y gestionar tipos de crédito",
             },
-              {
-              label: 'Cobros Indirectos',
-              href: '/admin/config/indirects',
-              description: 'Agregar y gestionar tipos de crédito',
+            {
+              label: "Cobros Indirectos",
+              href: "/admin/config/indirects",
+              description: "Agregar y gestionar tipos de crédito",
             },
           ],
         },
         {
-          label: 'Créditos',
+          label: "Créditos",
           subItems: [
             {
-              label: 'Simulador de Créditos',
-              href: '/loans',
-              description: 'Simulador de créditos para administración',
+              label: "Simulador de Créditos",
+              href: "/loans",
+              description: "Simulador de créditos para administración",
             },
           ],
         },
         {
-          label: 'Inversiones',
+          label: "Inversiones",
           subItems: [
             {
-              label: 'Configurar Inversiones',
-              href: '/admin/investments',
-              description: 'Gestionar productos de inversión',
+              label: "Configurar Inversiones",
+              href: "/admin/investments",
+              description: "Gestionar productos de inversión",
             },
             {
-              label: 'Solicitudes de Inversión',
-              href: '/admin/request-investments',
-              description: 'Revisar y gestionar solicitudes de inversión',
+              label: "Solicitudes de Inversión",
+              href: "/admin/request-investments",
+              description: "Revisar y gestionar solicitudes de inversión",
             },
           ],
-        },
-        {
-          label: 'Usuarios',
-          href: '/admin/users',
-          description: 'Gestión de usuarios del sistema',
         },
       ];
     }
 
     // Menú para clientes autenticados
-    if (isAuthenticated && user?.role === 'client') {
+    if (isAuthenticated && user?.role === "client") {
       return [
         {
-          label: 'Dashboard',
-          href: '/client/dashboard',
-          description: 'Mi panel principal',
+          label: "Dashboard",
+          href: "/client/dashboard",
+          description: "Mi panel principal",
         },
         {
-          label: 'Créditos',
+          label: "Créditos",
           subItems: [
             {
-              label: 'Simulador de Créditos',
-              href: '/loans',
-              description: 'Calcula tu tabla de amortización',
+              label: "Simulador de Créditos",
+              href: "/loans",
+              description: "Calcula tu tabla de amortización",
             },
           ],
         },
         {
-          label: 'Inversiones',
+          label: "Inversiones",
           subItems: [
             {
-              label: 'Simulador de Inversiones',
-              href: '/investments',
-              description: 'Planifica tu inversión',
+              label: "Simulador de Inversiones",
+              href: "/investments",
+              description: "Planifica tu inversión",
             },
             {
-              label: 'Mis Inversiones',
-              href: '/client/investments/my-investments',
-              description: 'Ver mis inversiones activas',
+              label: "Mis Inversiones",
+              href: "/client/investments/my-investments",
+              description: "Ver mis inversiones activas",
             },
           ],
         },
-        
       ];
     }
 
     // Menú para usuarios no autenticados (público)
     return [
       {
-        label: 'Créditos',
-        subItems: [
-            {
-              label: 'Simulador de Créditos',
-              href: '/loans',
-              description: 'Calcula tu tabla de amortización',
-            },
-          ],
-      },
-      {
-        label: 'Inversiones',
+        label: "Créditos",
         subItems: [
           {
-            label: 'Simulador de Inversiones',
-            href: '/investments',
-            description: 'Planifica tu inversión',
+            label: "Simulador de Créditos",
+            href: "/loans",
+            description: "Calcula tu tabla de amortización",
+          },
+        ],
+      },
+      {
+        label: "Inversiones",
+        subItems: [
+          {
+            label: "Simulador de Inversiones",
+            href: "/investments",
+            description: "Planifica tu inversión",
           },
         ],
       },
@@ -140,7 +135,7 @@ export function NavbarView() {
         <div className="flex items-center justify-between h-20">
           {/* Left: Logo */}
           <div className="flex items-center">
-            <Logo /> 
+            <Logo />
           </div>
 
           {/* Center: Desktop Navigation Menu */}
@@ -154,16 +149,21 @@ export function NavbarView() {
                       onClick={() => toggleSubmenu(item.label)}
                     >
                       {item.label}
-                      <svg 
-                        className="ml-1 w-4 h-4 transform group-hover:rotate-180 transition-transform duration-200" 
-                        fill="none" 
-                        stroke="currentColor" 
+                      <svg
+                        className="ml-1 w-4 h-4 transform group-hover:rotate-180 transition-transform duration-200"
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
                       </svg>
                     </button>
-                    
+
                     {/* Dropdown Menu */}
                     {activeSubmenu === item.label && (
                       <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
@@ -207,10 +207,10 @@ export function NavbarView() {
             <AuthButtons
               isAuthenticated={isAuthenticated}
               userName={user?.name}
-              userRole={user?.role} 
+              userRole={user?.role}
               onLogout={logout}
             />
-            
+
             {/* Mobile Menu Button */}
             <div className="lg:hidden">
               <MenuButton isOpen={isMenuOpen} onClick={toggleMenu} />
@@ -220,13 +220,15 @@ export function NavbarView() {
       </div>
 
       {/* Mobile Menu */}
-      <MobileMenu
-        isOpen={isMenuOpen}
-        menuItems={menuItems}
-        activeSubmenu={activeSubmenu}
-        onToggleSubmenu={toggleSubmenu}
-        onClose={closeMenu}
-      />
+      {isMenuOpen && (
+        <MobileMenu
+          isOpen={isMenuOpen}
+          menuItems={menuItems}
+          activeSubmenu={activeSubmenu}
+          onToggleSubmenu={toggleSubmenu}
+          onClose={closeMenu}
+        />
+      )}
     </header>
   );
 }
