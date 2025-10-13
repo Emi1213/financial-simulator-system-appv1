@@ -71,7 +71,7 @@ const addWatermark = (pdf: jsPDF, institution: Institution | null) => {
 };
 
 /**
- * Exporta la simulación de inversión a PDF con diseño mejorado
+ * Exporta la simulación de inversión a PDF con diseño tipo interface moderna
  */
 export const exportInvestmentToPDF = async (
   calculation: InvestmentCalculation,
@@ -82,17 +82,19 @@ export const exportInvestmentToPDF = async (
   try {
     const institution = await getInstitutionData();
     const nombreEmpresa = institution?.nombre || 'Institución Financiera';
-    const colorPrimario = institution?.color_primario || '#001f83';
-    const colorSecundario = institution?.color_secundario || '#1e3a8a';
-    const colorTitulo = '#1f2937'; // Gris oscuro para títulos
-    const colorTexto = '#374151'; // Gris medio para texto normal
+    const colorPrimario = institution?.color_primario || '#3b82f6';
+    const colorSecundario = institution?.color_secundario || '#1e40af';
+    const colorVerde = '#10b981';
+    const colorAzul = '#3b82f6';
+    const colorGris = '#6b7280';
+    const colorFondo = '#f8fafc';
 
     const pdf = new jsPDF('p', 'mm', 'a4');
-    let yPosition = 20;
-    const lineHeight = 7;
-    const margin = 20;
+    let yPosition = 15;
+    const margin = 15;
     const pageWidth = pdf.internal.pageSize.width;
     const pageHeight = pdf.internal.pageSize.height;
+    const cardWidth = pageWidth - (margin * 2);
 
     const addWatermarkToAllPages = () => {
       const pageCount = pdf.getNumberOfPages();
@@ -102,218 +104,243 @@ export const exportInvestmentToPDF = async (
       }
     };
 
-    const checkPageBreak = (requiredHeight: number = lineHeight) => {
-      if (yPosition + requiredHeight > pageHeight - 15) {
+    const checkPageBreak = (requiredHeight: number = 10) => {
+      if (yPosition + requiredHeight > pageHeight - 20) {
         pdf.addPage();
-        yPosition = 20;
+        yPosition = 15;
         return true;
       }
       return false;
     };
 
-    const addText = (
+    // Función para crear gradiente simulado con múltiples rectángulos
+    const drawGradientCard = (x: number, y: number, width: number, height: number, color1: string, color2: string) => {
+      const steps = 20;
+      const stepHeight = height / steps;
+      
+      for (let i = 0; i < steps; i++) {
+        const ratio = i / (steps - 1);
+        const [r1, g1, b1] = hexToRgb(color1);
+        const [r2, g2, b2] = hexToRgb(color2);
+        
+        const r = Math.round(r1 + (r2 - r1) * ratio);
+        const g = Math.round(g1 + (g2 - g1) * ratio);
+        const b = Math.round(b1 + (b2 - b1) * ratio);
+        
+        pdf.setFillColor(r, g, b);
+        pdf.rect(x, y + (i * stepHeight), width, stepHeight, 'F');
+      }
+    };
+
+    // Función para crear cards estilo interface
+    const drawCard = (x: number, y: number, width: number, height: number, gradientColor1: string, gradientColor2: string) => {
+      // Sombra
+      pdf.setFillColor(0, 0, 0, 0.1);
+      pdf.rect(x + 1, y + 1, width, height, 'F');
+      
+      // Card con gradiente
+      drawGradientCard(x, y, width, height, gradientColor1, gradientColor2);
+      
+      // Borde
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.2);
+      pdf.rect(x, y, width, height);
+    };
+
+    const addCardText = (
       text: string,
-      fontSize = 12,
+      x: number,
+      y: number,
+      fontSize = 10,
       isBold = false,
-      x = margin,
-      customY?: number,
-      color: string = colorTexto,
+      color: string = '#ffffff',
       align: 'left' | 'center' | 'right' = 'left'
     ) => {
-      if (customY !== undefined) yPosition = customY;
-      checkPageBreak();
-
       pdf.setFontSize(fontSize);
       pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
-
+      
       const [r, g, b] = hexToRgb(color);
       pdf.setTextColor(r, g, b);
 
       let xPosition = x;
       if (align === 'center') {
         const textWidth = pdf.getTextWidth(text);
-        xPosition = (pageWidth - textWidth) / 2;
+        xPosition = x - (textWidth / 2);
       } else if (align === 'right') {
         const textWidth = pdf.getTextWidth(text);
-        xPosition = pageWidth - margin - textWidth;
+        xPosition = x - textWidth;
       }
 
-      pdf.text(text, xPosition, yPosition);
-      pdf.setTextColor(0, 0, 0);
-      yPosition += lineHeight;
+      pdf.text(text, xPosition, y);
     };
 
-    const drawRect = (x: number, y: number, width: number, height: number, color: string) => {
-      const [r, g, b] = hexToRgb(color);
-      pdf.setFillColor(r, g, b);
-      pdf.rect(x, y, width, height, 'F');
-    };
-
-    // --- ENCABEZADO ---
-    drawRect(0, 0, pageWidth, 45, colorPrimario);
-
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(18);
-    pdf.setFont('helvetica', 'bold');
-    const titleWidth = pdf.getTextWidth(nombreEmpresa.toUpperCase());
-    pdf.text(nombreEmpresa.toUpperCase(), (pageWidth - titleWidth) / 2, 20);
-
-    if (institution?.slogan) {
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'normal');
-      const sloganWidth = pdf.getTextWidth(institution.slogan);
-      pdf.text(institution.slogan, (pageWidth - sloganWidth) / 2, 30);
-    }
-
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    const subtitleWidth = pdf.getTextWidth('SIMULACIÓN DE INVERSIÓN');
-    pdf.text('SIMULACIÓN DE INVERSIÓN', (pageWidth - subtitleWidth) / 2, 40);
-
-    pdf.setTextColor(0, 0, 0);
-    yPosition = 60;
-
-    // --- RESUMEN ---
-    addText('RESUMEN DE LA INVERSIÓN', 16, true, margin, yPosition, colorTitulo, 'center');
-    yPosition += 12;
-
-    const col1X = margin;
-    const col2X = pageWidth / 2 + 10;
-    let currentCol1Y = yPosition;
-    let currentCol2Y = yPosition;
-
-    const addRow = (label: string, value: string, colX: number, colY: number, valueOffset = 40) => {
-      addText(label, 10, true, colX, colY, colorTitulo);
-      addText(value, 10, false, colX + valueOffset, colY);
-      return colY + lineHeight;
-    };
-
-    // Información del producto
-    currentCol1Y = addRow('Producto:', producto.nombre, col1X, currentCol1Y, 30);
-    currentCol1Y = addRow('Descripción:', producto.descripcion, col1X, currentCol1Y, 30);
-    currentCol1Y = addRow('Monto Inicial:', `$${monto.toLocaleString()}`, col1X, currentCol1Y, 30);
-    currentCol1Y = addRow('Plazo:', `${plazo} meses`, col1X, currentCol1Y, 30);
-    currentCol1Y = addRow('Tasa Anual:', `${producto.tasa_anual}%`, col1X, currentCol1Y, 30);
-
-    // Resultados de la simulación
-    const returnPercentage = ((calculation.totalReturn / calculation.initialAmount) * 100);
-    currentCol2Y = addRow('Monto Final:', `$${calculation.finalAmount.toLocaleString()}`, col2X, currentCol2Y, 30);
-    currentCol2Y = addRow('Ganancia Total:', `$${calculation.totalReturn.toLocaleString()}`, col2X, currentCol2Y, 30);
-    currentCol2Y = addRow('Rentabilidad:', `${returnPercentage.toFixed(2)}%`, col2X, currentCol2Y, 30);
+    // --- HEADER MODERNO CON GRADIENTE ---
+    drawGradientCard(0, 0, pageWidth, 50, colorPrimario, colorSecundario);
     
-    if (producto.tipo_inversion) {
-      currentCol2Y = addRow('Tipo:', producto.tipo_inversion.nombre, col2X, currentCol2Y, 30);
-      currentCol2Y = addRow('Riesgo:', producto.tipo_inversion.nivel_riesgo, col2X, currentCol2Y, 30);
+    // Logo/Título principal
+    addCardText(nombreEmpresa.toUpperCase(), pageWidth / 2, 20, 18, true, '#ffffff', 'center');
+    
+    if (institution?.slogan) {
+      addCardText(institution.slogan, pageWidth / 2, 28, 10, false, '#e0e7ff', 'center');
     }
+    
+    // Subtítulo con badge style
+    drawCard(margin, 35, cardWidth, 12, '#10b981', '#059669');
+    addCardText('CALCULADORA DE CRECIMIENTO PATRIMONIAL', pageWidth / 2, 43, 12, true, '#ffffff', 'center');
+    
+    yPosition = 55;
 
-    yPosition = Math.max(currentCol1Y, currentCol2Y) + 12;
+    // --- CARDS DE RESUMEN ESTILO INTERFACE ---
+    const returnPercentage = ((calculation.totalReturn / calculation.initialAmount) * 100);
+    
+    checkPageBreak(35);
+    
+    // Card Principal - Información del Producto
+    drawCard(margin, yPosition, cardWidth * 0.65, 32, '#3b82f6', '#1e40af');
+    addCardText('Tu Rendimiento Proyectado', margin + 8, yPosition + 12, 12, true, '#ffffff');
+    addCardText(producto.nombre, margin + 8, yPosition + 20, 10, false, '#e0e7ff');
+    addCardText(`$${calculation.totalReturn.toLocaleString()}`, margin + (cardWidth * 0.65) - 8, yPosition + 20, 14, true, '#ffffff', 'right');
+    
+    // Card Lateral - Análisis
+    drawCard(margin + (cardWidth * 0.68), yPosition, cardWidth * 0.32, 32, '#6b7280', '#4b5563');
+    addCardText('Análisis de Inversión', margin + (cardWidth * 0.68) + 8, yPosition + 12, 10, true, '#ffffff');
+    addCardText(`${returnPercentage.toFixed(2)}%`, margin + (cardWidth * 0.68) + (cardWidth * 0.16), yPosition + 20, 12, true, '#ffffff', 'center');
+    addCardText('Rentabilidad Total', margin + (cardWidth * 0.68) + (cardWidth * 0.16), yPosition + 28, 8, false, '#d1d5db', 'center');
+    
+    yPosition += 40;
+    
+    // Grid de información detallada
+    const gridCols = 2;
+    const colWidth = cardWidth / gridCols;
+    
+    // Columna 1 - Datos de Inversión
+    drawCard(margin, yPosition, colWidth - 2, 25, '#f8fafc', '#e2e8f0');
+    addCardText('Datos de Inversion', margin + 8, yPosition + 10, 10, true, '#1f2937');
+    addCardText(`Monto Inicial: $${monto.toLocaleString()}`, margin + 8, yPosition + 16, 8, false, '#374151');
+    addCardText(`Plazo: ${plazo} meses`, margin + 8, yPosition + 20, 8, false, '#374151');
+    
+    // Columna 2 - Producto
+    drawCard(margin + colWidth + 2, yPosition, colWidth - 2, 25, '#f0fdf4', '#dcfce7');
+    addCardText('Detalles del Producto', margin + colWidth + 10, yPosition + 10, 10, true, '#166534');
+    addCardText(`Tasa: ${producto.tasa_anual}% anual`, margin + colWidth + 10, yPosition + 16, 8, false, '#15803d');
+    if (producto.tipo_inversion) {
+      addCardText(`Tipo: ${producto.tipo_inversion.nombre}`, margin + colWidth + 10, yPosition + 20, 8, false, '#15803d');
+    }
+    
+    yPosition += 35;
 
-    // --- PROYECCIÓN MENSUAL ---
-    checkPageBreak(25);
-    addText('PROYECCIÓN MENSUAL', 16, true, margin, yPosition, colorTitulo, 'center');
-    yPosition += 12;
-
-    const tableTop = yPosition;
-    const columns = [
-      { header: 'Mes', width: 20 },
-      { header: 'Balance Inicial', width: 35 },
-      { header: 'Interés Ganado', width: 35 },
-      { header: 'Balance Final', width: 35 },
-      { header: 'Acumulado Total', width: 35 }
-    ];
-
-    drawRect(margin - 2, tableTop - 5, 160, 8, colorTitulo);
-
-    let xPosition = margin;
-    pdf.setFontSize(8);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(255, 255, 255);
-
-    columns.forEach(col => {
-      pdf.text(col.header, xPosition, tableTop);
-      xPosition += col.width;
+    // --- TABLA ESTILO MODAL MODERNA ---
+    checkPageBreak(35);
+    
+    // Header de la tabla con gradiente
+    drawCard(margin, yPosition, cardWidth, 12, '#1f2937', '#111827');
+    addCardText('Proyeccion de Inversion - Evolucion Mensual', pageWidth / 2, yPosition + 8, 11, true, '#ffffff', 'center');
+    yPosition += 18;
+    
+    // Crear tabla con estilo moderno
+    const rowHeight = 6;
+    const headerHeight = 8;
+    
+    // Header de columnas
+    drawCard(margin, yPosition, cardWidth, headerHeight, '#f1f5f9', '#e2e8f0');
+    
+    const colWidths = [25, 35, 35, 35, 35];
+    const headers = ['Mes', 'Balance Inicial', 'Interés Ganado', 'Balance Final', 'Total Acumulado'];
+    let xPos = margin + 5;
+    
+    headers.forEach((header, idx) => {
+      addCardText(header, xPos, yPosition + 6, 8, true, '#475569');
+      xPos += colWidths[idx];
     });
-
-    pdf.setTextColor(0, 0, 0);
-    yPosition = tableTop + 8;
-
-    const drawTableRow = (projection: any, isEven: boolean) => {
-      checkPageBreak();
-      if (isEven) {
-        pdf.setFillColor(250, 250, 250);
-        pdf.rect(margin - 2, yPosition - 4, 158, 6, 'F');
-      }
-
-      xPosition = margin;
-      pdf.setFontSize(7);
-      pdf.setFont('helvetica', 'normal');
-
+    
+    yPosition += headerHeight + 2;
+    
+    // Filas de datos con alternating colors
+    calculation.monthlyProjection.forEach((projection, index) => {
+      checkPageBreak(rowHeight + 2);
+      
+      const bgColor1 = index % 2 === 0 ? '#ffffff' : '#f8fafc';
+      const bgColor2 = index % 2 === 0 ? '#fefefe' : '#f1f5f9';
+      
+      drawCard(margin, yPosition, cardWidth, rowHeight, bgColor1, bgColor2);
+      
       const balanceInicial = projection.month === 1 ? calculation.initialAmount : 
                             (calculation.monthlyProjection[projection.month - 2]?.accumulated || 0);
-
+      
+      xPos = margin + 5;
       const rowData = [
-        { text: projection.month.toString(), color: colorTexto },
-        { text: `$${balanceInicial.toFixed(2)}`, color: colorTexto },
-        { text: `$${projection.interest.toFixed(2)}`, color: '#16a34a' },
-        { text: `$${projection.balance.toFixed(2)}`, color: colorTexto },
-        { text: `$${projection.accumulated.toFixed(2)}`, color: '#1d4ed8' }
+        { text: `Mes ${projection.month}`, color: '#374151' },
+        { text: `$${balanceInicial.toLocaleString()}`, color: '#374151' },
+        { text: `+$${projection.interest.toLocaleString()}`, color: '#059669' },
+        { text: `$${projection.balance.toLocaleString()}`, color: '#374151' },
+        { text: `$${projection.accumulated.toLocaleString()}`, color: '#1d4ed8' }
       ];
-
+      
       rowData.forEach((cell, idx) => {
-        const [r, g, b] = hexToRgb(cell.color);
-        pdf.setTextColor(r, g, b);
-        pdf.text(cell.text, xPosition, yPosition);
-        xPosition += columns[idx].width;
+        addCardText(cell.text, xPos, yPosition + 4, 7, false, cell.color);
+        xPos += colWidths[idx];
       });
-
-      pdf.setTextColor(0, 0, 0);
-      yPosition += 6;
-
-      pdf.setDrawColor(229, 231, 235);
-      pdf.line(margin, yPosition - 1, margin + 155, yPosition - 1);
-    };
-
-    calculation.monthlyProjection.forEach((projection, index) => {
-      drawTableRow(projection, index % 2 === 0);
+      
+      yPosition += rowHeight + 1;
     });
-
-    // --- RESUMEN FINAL ---
-    checkPageBreak(20);
-    yPosition += 8;
-    addText('RESUMEN FINAL', 14, true, margin, yPosition, colorTitulo, 'center');
+    
     yPosition += 10;
-
-    const resumenFinalY = yPosition;
-    addText(`Inversión inicial: $${calculation.initialAmount.toLocaleString()}`, 10, false, margin, resumenFinalY);
-    addText(`Total acumulado: $${calculation.finalAmount.toLocaleString()}`, 10, false, margin);
-    addText(`Ganancia neta: $${calculation.totalReturn.toLocaleString()} (${returnPercentage.toFixed(2)}%)`, 10, true, margin);
-
-    // --- PIE DE PÁGINA ---
-    checkPageBreak(25);
-    pdf.setDrawColor(...hexToRgb(colorPrimario));
-    pdf.line(margin, yPosition + 5, pageWidth - margin, yPosition + 5);
-    yPosition += 15;
-
+    
+    // --- RESUMEN FINAL CON CARDS ---
+    checkPageBreak(45);
+    
+    // Card de resumen con métricas destacadas
+    drawCard(margin, yPosition, cardWidth, 35, '#0f172a', '#1e293b');
+    addCardText('Resumen Final de tu Inversion', pageWidth / 2, yPosition + 12, 12, true, '#ffffff', 'center');
+    
+    // Tres métricas en línea
+    const metricWidth = cardWidth / 3;
+    
+    // Inversión inicial
+    addCardText('Inversión Inicial', margin + (metricWidth * 0.5), yPosition + 20, 8, false, '#cbd5e1', 'center');
+    addCardText(`$${calculation.initialAmount.toLocaleString()}`, margin + (metricWidth * 0.5), yPosition + 26, 10, true, '#ffffff', 'center');
+    
+    // Ganancia total
+    addCardText('Ganancia Total', margin + (metricWidth * 1.5), yPosition + 20, 8, false, '#cbd5e1', 'center');
+    addCardText(`$${calculation.totalReturn.toLocaleString()}`, margin + (metricWidth * 1.5), yPosition + 26, 10, true, '#10b981', 'center');
+    
+    // Total final
+    addCardText('Total Final', margin + (metricWidth * 2.5), yPosition + 20, 8, false, '#cbd5e1', 'center');
+    addCardText(`$${calculation.finalAmount.toLocaleString()}`, margin + (metricWidth * 2.5), yPosition + 26, 10, true, '#3b82f6', 'center');
+    
+    yPosition += 45;
+    
+    // --- FOOTER MODERNO ---
+    checkPageBreak(30);
+    
     if (institution) {
-      addText('INFORMACIÓN DE CONTACTO', 10, true, margin, yPosition, colorTitulo, 'center');
-      yPosition += 8;
-
-      const footerCol1 = margin;
-      const footerCol2 = pageWidth / 2;
-
-      if (institution.direccion) yPosition = addRow('Dirección:', institution.direccion, footerCol1, yPosition, 20);
-      if (institution.telefono) yPosition = addRow('Teléfono:', institution.telefono, footerCol2, yPosition - lineHeight, 20);
-      if (institution.correo) yPosition = addRow('Email:', institution.correo, footerCol1, yPosition, 20);
+      drawCard(margin, yPosition, cardWidth, 25, '#f8fafc', '#e2e8f0');
+      addCardText('Informacion de Contacto', margin + 8, yPosition + 8, 10, true, '#1f2937');
+      
+      let contactY = yPosition + 15;
+      if (institution.direccion) {
+        addCardText(`Direccion: ${institution.direccion}`, margin + 8, contactY, 8, false, '#374151');
+        contactY += 4;
+      }
+      if (institution.telefono) {
+        addCardText(`Telefono: ${institution.telefono}`, margin + 8, contactY, 8, false, '#374151');
+        contactY += 4;
+      }
+      if (institution.correo) {
+        addCardText(`Correo: ${institution.correo}`, margin + 8, contactY, 8, false, '#374151');
+      }
+      
+      yPosition += 30;
     }
-
-    yPosition += 5;
-    addText(`Documento generado el ${new Date().toLocaleDateString('es-ES', { 
+    
+    // Timestamp final
+    addCardText(`Documento generado: ${new Date().toLocaleDateString('es-ES', { 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    })}`, 8, false, margin, yPosition, '#6b7280', 'center');
+    })}`, pageWidth / 2, yPosition + 5, 7, false, '#6b7280', 'center');
 
     addWatermarkToAllPages();
 
