@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 import { 
     Select, 
     SelectContent, 
@@ -123,38 +124,42 @@ export const InvestmentsForm: React.FC = () => {
     };
 
     return (
-        <Card className="w-full max-w-2xl">
-            <CardHeader>
-                <CardDescription>
-                    Ingresa los datos de tu inversión para calcular los rendimientos proyectados
+        <Card className="border-green-200 bg-gradient-to-b from-green-50 to-emerald-50">
+            <CardHeader className="pb-6">
+                <CardTitle className="text-green-800">Planifica tu Futuro Financiero</CardTitle>
+                <CardDescription className="text-green-700">
+                    Define los parámetros de tu inversión y descubre el potencial de crecimiento de tu capital
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-8">
                     {error && (
-                        <div className="p-4 text-sm text-red-600 bg-red-50 rounded-md">
+                        <div className="p-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
                             {error}
                         </div>
                     )}
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         <Field data-invalid={!!fieldErrors.producto_inversion_id}>
-                            <FieldLabel>Seleccione la Inversión Solicitada</FieldLabel>
+                            <FieldLabel className="text-sm font-medium text-gray-700">
+                                Producto de Inversión Preferido
+                            </FieldLabel>
                             <FieldContent>
                                 <Select
                                     value={formData.producto_inversion_id.toString()}
                                     onValueChange={(value) => handleInputChange('producto_inversion_id', parseInt(value) || 0)}
                                 >
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Seleccione la inversión" />
+                                    <SelectTrigger className="border-green-200 focus:border-green-400 focus:ring-green-400 py-3">
+                                        <SelectValue placeholder="Elige tu opción de inversión ideal" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {productosInversion.map((producto) => (
                                             <SelectItem key={producto.id} value={producto.id.toString()}>
-                                                <div className="flex flex-col w-full">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="font-medium">{producto.nombre}</span>
-                                                    </div>
+                                                <div className="flex flex-col w-full py-1">
+                                                    <span className="font-medium text-gray-900">{producto.nombre}</span>
+                                                    <span className="text-sm text-green-600">
+                                                        {producto.tasa_anual}% anual • {producto.tipo_inversion?.nombre}
+                                                    </span>
                                                 </div>
                                             </SelectItem>
                                         ))}
@@ -164,122 +169,97 @@ export const InvestmentsForm: React.FC = () => {
                             </FieldContent>
                         </Field>
 
-                        {selectedProducto && (
-                            <div className="p-4 bg-gray-50 rounded-lg border">
-                                <h4 className="font-medium text-gray-900 mb-3">
-                                    Información del Inversión
-                                </h4>
-                                
-                                {/* Información Principal */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center p-2 bg-white rounded border">
-                                            <span className="text-gray-600">Tipo de Inversión:</span>
-                                            <span className="font-medium">{selectedProducto.tipo_inversion?.nombre}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center p-2 bg-white rounded border">
-                                            <span className="text-gray-600">Tasa Anual:</span>
-                                            <span className="font-medium">{selectedProducto.tasa_anual}%</span>
-                                        </div>
-                                        <div className="flex justify-between items-center p-2 bg-white rounded border">
-                                            <span className="text-gray-600">Nivel de Riesgo:</span>
-                                            <span className="font-medium">{selectedProducto.tipo_inversion?.nivel_riesgo}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between items-center p-2 bg-white rounded border">
-                                            <span className="text-gray-600">Tipo de Interés:</span>
-                                            <span className="font-medium">{selectedProducto.tipo_inversion?.tipo_interes}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center p-2 bg-white rounded border">
-                                            <span className="text-gray-600">Tipo de Tasa:</span>
-                                            <span className="font-medium">{selectedProducto.tipo_inversion?.tipo_tasa}</span>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                {/* Descripción */}
-                                <div className="border-t pt-3">
-                                    <h5 className="font-medium text-gray-800 mb-2">Descripción</h5>
-                                    <p className="text-sm text-gray-600 bg-white p-2 rounded border">
-                                        {selectedProducto.descripcion}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-6">
                             <Field data-invalid={!!fieldErrors.amount}>
-                                <FieldLabel>
-                                    Monto a Invertir (USD)
+                                <FieldLabel className="text-sm font-medium text-gray-700">
+                                    Capital Inicial de Inversión
                                     {selectedProducto && (
-                                        <span className="ml-2 text-xs text-gray-500">
-                                            (${selectedProducto.monto_minimo.toLocaleString()}
-                                            - ${selectedProducto.monto_maximo.toLocaleString()})</span>
+                                        <div className="mt-1 text-xs text-green-600 font-normal">
+                                            Rango permitido: ${selectedProducto.monto_minimo.toLocaleString()} - ${selectedProducto.monto_maximo.toLocaleString()}
+                                        </div>
                                     )}
                                 </FieldLabel>
                                 <FieldContent>
-                                    <Input
-                                        id="amount"
-                                        type="number"
-                                        placeholder={ 
-                                            "Ingrese el monto a invertir"
-                                        }
-                                        value={formData.amount || ''}
-                                        onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
-                                        min={selectedProducto?.monto_minimo || 0}
-                                        max={selectedProducto?.monto_maximo}
-                                        step="1000"
-                                        aria-invalid={!!fieldErrors.amount}
-                                    />
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                        <Input
+                                            id="amount"
+                                            type="number"
+                                            placeholder="¿Cuánto deseas invertir?"
+                                            value={formData.amount || ''}
+                                            onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
+                                            min={selectedProducto?.monto_minimo || 0}
+                                            max={selectedProducto?.monto_maximo}
+                                            step="1000"
+                                            className="border-green-200 focus:border-green-400 focus:ring-green-400 pl-8 py-4 text-lg"
+                                            aria-invalid={!!fieldErrors.amount}
+                                        />
+                                    </div>
                                     {fieldErrors.amount && <FieldError>{fieldErrors.amount}</FieldError>}
+                                    {selectedProducto && (
+                                        <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                                            💡 <strong>Rentabilidad:</strong> {selectedProducto.tasa_anual}% anual • <strong>Tipo:</strong> {selectedProducto.tipo_inversion?.nombre} • <strong>Riesgo:</strong> {selectedProducto.tipo_inversion?.nivel_riesgo}
+                                        </div>
+                                    )}
                                 </FieldContent>
                             </Field>
 
                             <Field data-invalid={!!fieldErrors.term}>
-                                <FieldLabel>
-                                    Plazo (meses)
+                                <FieldLabel className="text-sm font-medium text-gray-700">
+                                    Período de Inversión
                                     {selectedProducto && (
-                                        <span className="ml-2 text-xs text-gray-500">
-                                            ({selectedProducto.plazo_min_meses}
-                                             - {selectedProducto.plazo_max_meses} meses)
-                                        </span>
+                                        <div className="mt-1 text-xs text-green-600 font-normal">
+                                            Duración disponible: {selectedProducto.plazo_min_meses} - {selectedProducto.plazo_max_meses} meses
+                                        </div>
                                     )}
                                 </FieldLabel>
                                 <FieldContent>
-                                    <Input
-                                        id="term"
-                                        type="number"
-                                        placeholder={selectedProducto ? 
-                                            `Entre ${selectedProducto.plazo_min_meses} y ${selectedProducto.plazo_max_meses} meses` : 
-                                            "Ingrese el plazo en meses"
-                                        }
-                                        value={formData.term || ''}
-                                        onChange={(e) => handleInputChange('term', parseInt(e.target.value) || 0)}
-                                        min={selectedProducto?.plazo_min_meses || 1}
-                                        max={selectedProducto?.plazo_max_meses || 360}
-                                        aria-invalid={!!fieldErrors.term}
-                                    />
+                                    <div className="relative">
+                                        <Input
+                                            id="term"
+                                            type="number"
+                                            placeholder="¿Por cuántos meses?"
+                                            value={formData.term || ''}
+                                            onChange={(e) => handleInputChange('term', parseInt(e.target.value) || 0)}
+                                            min={selectedProducto?.plazo_min_meses || 1}
+                                            max={selectedProducto?.plazo_max_meses || 360}
+                                            className="border-green-200 focus:border-green-400 focus:ring-green-400 py-4 text-lg"
+                                            aria-invalid={!!fieldErrors.term}
+                                        />
+                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">meses</span>
+                                    </div>
                                     {fieldErrors.term && <FieldError>{fieldErrors.term}</FieldError>}
+                                    {selectedProducto && (
+                                        <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                                            📊 <strong>Modalidad:</strong> {selectedProducto.tipo_inversion?.tipo_interes} • <strong>Tasa:</strong> {selectedProducto.tipo_inversion?.tipo_tasa}
+                                            {selectedProducto.descripcion && (
+                                                <>
+                                                    <br />
+                                                    📝 <strong>Detalles:</strong> {selectedProducto.descripcion}
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
                                 </FieldContent>
                             </Field>
                         </div>
                     </div>
 
-                    <div className="flex gap-3 pt-4">
+                    <div className="pt-6">
                         <Button
                             type="submit"
                             disabled={formData.producto_inversion_id <= 0 || !formData.amount || isCalculating || Object.values(fieldErrors).some(error => error)}
-                            className="flex-1"
+                            className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg font-medium"
                         >
                             {isCalculating ? (
                                 <>
-                                    <Spinner className="mr-2 h-4 w-4" />
-                                    Calculando...
+                                    <Spinner className="mr-2 h-5 w-5" />
+                                    Proyectando tu Futuro...
                                 </>
                             ) : (
-                                'Simular Inversión'
+                                'Descubrir mi Potencial de Ganancia'
                             )}
                         </Button>
                     </div>

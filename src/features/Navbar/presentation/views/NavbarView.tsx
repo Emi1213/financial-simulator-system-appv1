@@ -20,11 +20,6 @@ export function NavbarView() {
     if (isAuthenticated && user?.role === 'admin') {
       return [
         {
-          label: 'Dashboard',
-          href: '/admin',
-          description: 'Panel principal de administración',
-        },
-        {
           label: 'Configuración',
           subItems: [
             {
@@ -110,11 +105,7 @@ export function NavbarView() {
             },
           ],
         },
-        {
-          label: 'Mi Perfil',
-          href: '/client/profile',
-          description: 'Gestionar mi información personal',
-        },
+        
       ];
     }
 

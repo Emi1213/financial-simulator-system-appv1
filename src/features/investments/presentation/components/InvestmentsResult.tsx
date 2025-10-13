@@ -58,16 +58,16 @@ export const InvestmentsResult: React.FC = () => {
 
     if (!currentCalculation) {
         return (
-            <Card className="w-full max-w-2xl">
-                <CardHeader>
-                    <CardTitle>Proyección de Rendimientos</CardTitle>
-                    <CardDescription>
-                        Completa el formulario y haz clic en "Calcular Rendimiento" para ver la proyección
+            <Card className="border-gray-200 bg-gradient-to-b from-gray-50 to-slate-50">
+                <CardHeader className="text-center py-8">
+                    <CardTitle className="text-gray-700">Proyección de Rendimientos</CardTitle>
+                    <CardDescription className="text-gray-600 max-w-md mx-auto">
+                        Completa el formulario y simula tu inversión para ver los resultados proyectados
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex items-center justify-center h-32 text-muted-foreground">
-                        <p>No hay cálculos disponibles</p>
+                    <div className="flex items-center justify-center h-24 text-gray-400">
+                        <p className="text-lg">Esperando simulación...</p>
                     </div>
                 </CardContent>
             </Card>
@@ -78,88 +78,92 @@ export const InvestmentsResult: React.FC = () => {
     const returnPercentage = (totalReturn / initialAmount) * 100;
 
     return (
-        <div className="w-full max-w-4xl space-y-6">
-            {/* Resumen Principal */}
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle>Proyección de Rendimientos</CardTitle>
-                        <CardDescription>
-                            Resultados del cálculo de inversión
-                        </CardDescription>
-                    </div>
-                    <Button variant="outline" onClick={clearCalculation}>
-                        Limpiar
+        <div className="w-full space-y-8">
+            {/* Resumen de Rendimientos */}
+            <div className="space-y-6">
+                {/* Monto Inicial */}
+                <Card className="border-blue-200 bg-gradient-to-b from-blue-50 to-indigo-50">
+                    <CardHeader className="flex flex-row items-center justify-between pb-3">
+                        <div>
+                            <CardTitle className="text-blue-800 text-lg">Monto Inicial</CardTitle>
+                            <CardDescription className="text-blue-700">Capital invertido</CardDescription>
+                        </div>
+                        <div className="text-3xl font-bold text-blue-600">
+                            {formatCurrency(initialAmount)}
+                        </div>
+                    </CardHeader>
+                </Card>
+
+                {/* Monto Final */}
+                <Card className="border-green-200 bg-gradient-to-b from-green-50 to-emerald-50">
+                    <CardHeader className="flex flex-row items-center justify-between pb-3">
+                        <div>
+                            <CardTitle className="text-green-800 text-lg">Monto Final</CardTitle>
+                            <CardDescription className="text-green-700">Capital + rendimientos</CardDescription>
+                        </div>
+                        <div className="text-3xl font-bold text-green-600">
+                            {formatCurrency(finalAmount)}
+                        </div>
+                    </CardHeader>
+                </Card>
+
+                {/* Ganancia Total */}
+                <Card className="border-purple-200 bg-gradient-to-b from-purple-50 to-violet-50">
+                    <CardHeader className="flex flex-row items-center justify-between pb-3">
+                        <div>
+                            <CardTitle className="text-purple-800 text-lg">Ganancia Total</CardTitle>
+                            <CardDescription className="text-purple-700">
+                                Rendimiento: {formatPercentage(returnPercentage)}
+                            </CardDescription>
+                        </div>
+                        <div className="text-3xl font-bold text-purple-600">
+                            {formatCurrency(totalReturn)}
+                        </div>
+                    </CardHeader>
+                </Card>
+            </div>
+
+            {/* Acciones */}
+            <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Button
+                        onClick={handleExportPDF}
+                        disabled={exporting === 'pdf'}
+                        variant="outline"
+                        className="text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50 py-6"
+                    >
+                        <FileText className="h-5 w-5 mr-2" />
+                        {exporting === 'pdf' ? 'Generando PDF...' : 'Exportar PDF'}
                     </Button>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="text-center p-4 bg-blue-50 rounded-lg">
-                            <p className="text-sm text-muted-foreground mb-1">Monto Inicial</p>
-                            <p className="text-2xl font-bold text-blue-600">
-                                {formatCurrency(initialAmount)}
-                            </p>
-                        </div>
-                        
-                        <div className="text-center p-4 bg-green-50 rounded-lg">
-                            <p className="text-sm text-muted-foreground mb-1">Monto Final</p>
-                            <p className="text-2xl font-bold text-green-600">
-                                {formatCurrency(finalAmount)}
-                            </p>
-                        </div>
-                        
-                        <div className="text-center p-4 bg-purple-50 rounded-lg">
-                            <p className="text-sm text-muted-foreground mb-1">Ganancia Total</p>
-                            <p className="text-2xl font-bold text-purple-600">
-                                {formatCurrency(totalReturn)}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                                {formatPercentage(returnPercentage)}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Botones de Exportación */}
-                    <div className="flex gap-3 mt-6 pt-4 border-t">
-                        <Button
-                            onClick={handleExportPDF}
-                            disabled={exporting === 'pdf'}
-                            variant="outline"
-                            className="flex-1 text-red-600 border-red-600 hover:bg-red-50 disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                            <FileText className="h-4 w-4" />
-                            {exporting === 'pdf' ? 'Generando PDF...' : 'Exportar PDF'}
-                        </Button>
-                        <Button
-                            onClick={handleExportExcel}
-                            disabled={exporting === 'excel'}
-                            variant="outline"
-                            className="flex-1 text-green-600 border-green-600 hover:bg-green-50 disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                            <Download className="h-4 w-4" />
-                            {exporting === 'excel' ? 'Generando Excel...' : 'Exportar Excel'}
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Botón de Solicitar Inversión */}
-            <div className="flex justify-center">
-                <Button 
-                    onClick={handleSolicitarInversion}
-                    size="lg"
-                    className="bg-green-600 hover:bg-green-700 text-white px-8 py-3"
-                >
-                    <ArrowRight className="h-5 w-5 mr-2" />
-                    Solicitar esta Inversión
-                </Button>
+                    <Button
+                        onClick={handleExportExcel}
+                        disabled={exporting === 'excel'}
+                        variant="outline"
+                        className="text-green-600 border-green-200 hover:bg-green-50 disabled:opacity-50 py-6"
+                    >
+                        <Download className="h-5 w-5 mr-2" />
+                        {exporting === 'excel' ? 'Generando Excel...' : 'Exportar Excel'}
+                    </Button>
+                    <Button 
+                        onClick={handleSolicitarInversion}
+                        className="bg-green-600 hover:bg-green-700 text-white py-6"
+                    >
+                        <ArrowRight className="h-5 w-5 mr-2" />
+                        Solicitar Inversión
+                    </Button>
+                </div>
+                <div className="flex justify-center">
+                    <Button variant="ghost" onClick={clearCalculation} className="text-gray-500 hover:text-gray-700">
+                        Limpiar Simulación
+                    </Button>
+                </div>
             </div>
 
             {/* Proyección Mensual */}
-            <Card>
+            <Card className="border-gray-200 bg-gradient-to-b from-gray-50 to-slate-50">
                 <CardHeader>
-                    <CardTitle>Proyección Mensual</CardTitle>
-                    <CardDescription>
+                    <CardTitle className="text-gray-800">Proyección Mensual</CardTitle>
+                    <CardDescription className="text-gray-600">
                         Evolución del capital mes a mes
                     </CardDescription>
                 </CardHeader>

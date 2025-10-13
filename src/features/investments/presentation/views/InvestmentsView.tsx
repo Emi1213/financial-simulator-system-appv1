@@ -11,23 +11,26 @@ const InvestmentsContent: React.FC = () => {
 
     return (
         <div className="container mx-auto px-4 py-8 space-y-8">
-            <div className="text-center space-y-2">
-                <h1 className="text-3xl font-bold">Simulador de Inversiones</h1>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                    Calcula y proyecta el rendimiento de tus inversiones financieras.
-                    Crea diferentes escenarios y compara opciones de inversión.
-                </p>
+            <div className="text-center space-y-4">
+                <div className="space-y-2">
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                        Calculadora de Crecimiento Patrimonial
+                    </h1>
+                    <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                        Visualiza cómo tu dinero puede multiplicarse y construye tu estrategia de inversión ideal
+                    </p>
+                </div>
             </div>
 
-            <div className={`grid gap-8 ${currentCalculation ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 max-w-2xl mx-auto'}`}>
+            <div className="grid grid-cols-1 gap-8 max-w-4xl mx-auto">
                 {/* Formulario de inversión */}
-                <div className="space-y-6">
+                <div className="w-full">
                     <InvestmentsForm />
                 </div>
 
                 {/* Resultados - Solo mostrar cuando hay cálculo */}
                 {currentCalculation && (
-                    <div className="space-y-6">
+                    <div className="w-full">
                         <InvestmentsResult />
                     </div>
                 )}
