@@ -13,8 +13,8 @@ const InvestmentsContent: React.FC = () => {
         <div className="container mx-auto px-4 py-8 space-y-8">
             <div className="text-center space-y-4">
                 <div className="space-y-2">
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                        Calculadora de Crecimiento Patrimonial
+                    <h1 className="text-4xl font-bold text-black">
+                        Calculadora de Crecimiento
                     </h1>
                     <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                         Visualiza cómo tu dinero puede multiplicarse y construye tu estrategia de inversión ideal
