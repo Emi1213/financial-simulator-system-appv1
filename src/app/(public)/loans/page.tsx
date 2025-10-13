@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface LoanType {
   id_credito: number;
@@ -65,6 +66,7 @@ export default function LoansPage() {
   const [calculando, setCalculando] = useState(false);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState<'pdf' | 'excel' | null>(null);
+  const [showAmortizationModal, setShowAmortizationModal] = useState(false);
 
   // Cargar tipos de crédito desde la base de datos
   useEffect(() => {
@@ -306,8 +308,8 @@ export default function LoansPage() {
             </CardHeader>
             <CardContent>
 
-              <div className="space-y-4">
-                {/* Selector de Tipo de Crédito */}
+              <div className="space-y-6">
+                {/* Selector de Tipo de Crédito - Fila completa */}
                 <div className="space-y-2">
                   <Label htmlFor="loan-type">Tipo de Crédito *</Label>
                   <Select value={selectedLoan} onValueChange={setSelectedLoan}>
@@ -324,52 +326,50 @@ export default function LoansPage() {
                   </Select>
                 </div>
 
-                {/* Monto del Crédito */}
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Monto del Crédito ($)</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    value={monto}
-                    onChange={(e) => setMonto(Number(e.target.value))}
-                    min="1000"
-                    step="1000"
-                    placeholder="Ingrese el monto"
-                  />
-                </div>
-
-                {/* Tasa de Interés (solo lectura) */}
-                <div className="space-y-2">
-                  <Label htmlFor="interest-rate">Tasa de Interés Anual (%)</Label>
-                  <div className="flex gap-2 items-center">
+                {/* Fila 1: Monto y Tasa */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Monto del Crédito ($)</Label>
                     <Input
-                      id="interest-rate"
+                      id="amount"
                       type="number"
-                      value={tasaInteres}
-                      readOnly
-                      className="bg-muted"
+                      value={monto}
+                      onChange={(e) => setMonto(Number(e.target.value))}
+                      min="1000"
+                      step="1000"
+                      placeholder="Ingrese el monto"
                     />
-                    <Badge variant="secondary">{tasaInteres}% anual</Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Tasa definida por el tipo de crédito seleccionado
-                  </p>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="interest-rate">Tasa de Interés (%)</Label>
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        id="interest-rate"
+                        type="number"
+                        value={tasaInteres}
+                        readOnly
+                        className="bg-muted flex-1"
+                      />
+                      <Badge variant="secondary">{tasaInteres}%</Badge>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Plazo */}
-                <div className="space-y-2">
-                  <Label htmlFor="term">Plazo de Financiamiento</Label>
-                  <div className="flex items-center gap-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPlazo(Math.max(plazoMin, plazo - 1))}
-                      disabled={plazo <= plazoMin}
-                    >
-                      -
-                    </Button>
-                    <div className="flex-1 text-center">
+                {/* Fila 2: Plazo y Sistema de Amortización */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="term">Plazo de Financiamiento</Label>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPlazo(Math.max(plazoMin, plazo - 1))}
+                        disabled={plazo <= plazoMin}
+                      >
+                        -
+                      </Button>
                       <Input
                         id="term"
                         type="number"
@@ -382,43 +382,40 @@ export default function LoansPage() {
                         }}
                         min={plazoMin}
                         max={plazoMax}
-                        className="text-center font-semibold"
+                        className="text-center font-semibold flex-1"
                       />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPlazo(Math.min(plazoMax, plazo + 1))}
+                        disabled={plazo >= plazoMax}
+                      >
+                        +
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPlazo(Math.min(plazoMax, plazo + 1))}
-                      disabled={plazo >= plazoMax}
-                    >
-                      +
-                    </Button>
+                    <div className="text-center">
+                      <Badge variant="outline">{plazo} meses</Badge>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Mín: {plazoMin} meses</span>
-                    <Badge variant="outline">{plazo} meses</Badge>
-                    <span>Máx: {plazoMax} meses</span>
-                  </div>
-                </div>
 
-                {/* Tipo de Amortización */}
-                <div className="space-y-2">
-                  <Label htmlFor="amortization">Sistema de Amortización</Label>
-                  <Select value={tipoAmortizacion} onValueChange={(value: TipoAmortizacion) => setTipoAmortizacion(value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccione el sistema" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="frances">Francés (Cuota Constante)</SelectItem>
-                      <SelectItem value="aleman">Alemán (Amortización Constante)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    {tipoAmortizacion === 'frances'
-                      ? 'Cuota mensual constante, interés decreciente'
-                      : 'Amortización constante, cuota decreciente'}
-                  </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="amortization">Sistema de Amortización</Label>
+                    <Select value={tipoAmortizacion} onValueChange={(value: TipoAmortizacion) => setTipoAmortizacion(value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione el sistema" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="frances">Francés (Cuota Constante)</SelectItem>
+                        <SelectItem value="aleman">Alemán (Amortización Constante)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {tipoAmortizacion === 'frances'
+                        ? 'Cuota constante'
+                        : 'Amortización constante'}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Información de Cobros Indirectos */}
@@ -454,66 +451,118 @@ export default function LoansPage() {
               </CardContent>
             </Card>
 
-          {/* Resultados Resumen */}
+          {/* Resumen Rediseñado */}
           {resultado && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Resumen del Crédito</CardTitle>
-                <CardDescription>Detalles de su simulación financiera</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Tipo:</span>
-                    <span className="font-semibold">
-                      {selectedLoanData?.nombre}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Sistema:</span>
-                    <span className="font-semibold">
-                      {tipoAmortizacion === 'frances' ? 'Francés' : 'Alemán'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Monto:</span>
-                    <span className="font-semibold">${monto.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Tasa Anual:</span>
-                    <span className="font-semibold">{tasaInteres}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Plazo:</span>
-                    <span className="font-semibold">{plazo} meses</span>
-                  </div>
-                  <div className="flex justify-between border-t pt-2">
-                    <span className="text-gray-600">Cuota Base:</span>
-                    <span className="font-semibold">${resultado.cuotaMensual.toFixed(2)}</span>
-                  </div>
-                  {resultado.cobrosIndirectosMensuales > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Cobros Indirectos:</span>
-                      <span className="font-semibold text-orange-600">+${resultado.cobrosIndirectosMensuales.toFixed(2)}</span>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Card Principal - Cuota */}
+              <Card className="lg:col-span-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-green-800">Tu Cuota Mensual</CardTitle>
+                      <CardDescription className="text-green-600">
+                        {selectedLoanData?.nombre} - Sistema {tipoAmortizacion === 'frances' ? 'Francés' : 'Alemán'}
+                      </CardDescription>
                     </div>
-                  )}
-                  <div className="flex justify-between border-t pt-2">
-                    <span className="text-gray-600 font-semibold">Cuota Final:</span>
-                    <span className="font-semibold text-blue-600">${resultado.cuotaFinal.toFixed(2)}</span>
+                    <Badge className="bg-green-600">${resultado.cuotaFinal.toFixed(0)}</Badge>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total Intereses:</span>
-                    <span className="font-semibold text-red-600">${resultado.totalInteres.toFixed(2)}</span>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Cuota Base:</span>
+                        <span className="font-medium">${resultado.cuotaMensual.toFixed(2)}</span>
+                      </div>
+                      {resultado.cobrosIndirectosMensuales > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Cobros Adicionales:</span>
+                          <span className="font-medium text-amber-600">+${resultado.cobrosIndirectosMensuales.toFixed(2)}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Monto:</span>
+                        <span className="font-medium">${monto.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Plazo:</span>
+                        <span className="font-medium">{plazo} meses</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between border-t pt-2">
-                    <span className="text-gray-600 font-semibold">Total a Pagar:</span>
-                    <span className="font-semibold text-green-600">${resultado.totalPagar.toFixed(2)}</span>
-                  </div>
-                </div>
+                </CardContent>
+              </Card>
 
-                <Separator className="my-4" />
-                
-                {/* Botón de Exportación */}
+              {/* Card de Totales */}
+              <Card className="border-blue-200 bg-gradient-to-b from-blue-50 to-indigo-50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-blue-800 text-sm">Resumen Financiero</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 space-y-3">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">${resultado.totalInteres.toFixed(0)}</div>
+                    <div className="text-xs text-muted-foreground">Total Intereses</div>
+                  </div>
+                  <Separator />
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">${resultado.totalPagar.toFixed(0)}</div>
+                    <div className="text-xs text-muted-foreground">Total a Pagar</div>
+                  </div>
+                  <div className="pt-2">
+                    <Dialog open={showAmortizationModal} onOpenChange={setShowAmortizationModal}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-full">
+                          Ver Tabla Completa
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-5xl max-h-[80vh] overflow-hidden">
+                        <DialogHeader>
+                          <DialogTitle>
+                            Tabla de Amortización - Sistema {tipoAmortizacion === 'frances' ? 'Francés' : 'Alemán'}
+                          </DialogTitle>
+                          <DialogDescription>
+                            {selectedLoanData?.nombre}
+                            {resultado.cobrosIndirectosMensuales > 0 && ` - Incluye cobros adicionales: $${resultado.cobrosIndirectosMensuales.toFixed(2)}/mes`}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="overflow-y-auto max-h-96">
+                          <table className="w-full text-sm">
+                            <thead className="bg-muted sticky top-0">
+                              <tr className="border-b">
+                                <th className="text-left p-2">Mes</th>
+                                <th className="text-right p-2">Saldo Inicial</th>
+                                <th className="text-right p-2">Cuota</th>
+                                <th className="text-right p-2">Interés</th>
+                                <th className="text-right p-2">Capital</th>
+                                <th className="text-right p-2">Saldo Final</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {resultado.tablaAmortizacion.map((fila) => (
+                                <tr key={fila.mes} className="border-b hover:bg-muted/50">
+                                  <td className="p-2 font-medium">{fila.mes}</td>
+                                  <td className="p-2 text-right">${fila.saldoInicial.toFixed(2)}</td>
+                                  <td className="p-2 text-right font-semibold">${fila.pagoTotal.toFixed(2)}</td>
+                                  <td className="p-2 text-right text-red-600">${fila.interes.toFixed(2)}</td>
+                                  <td className="p-2 text-right text-green-600">${fila.capital.toFixed(2)}</td>
+                                  <td className="p-2 text-right">${fila.saldoFinal.toFixed(2)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardContent>
+              </Card>
+              </div>
+
+              {/* Botón de Exportación separado */}
+              <div>
                 <Button
                   onClick={handleExportPDF}
                   disabled={exporting === 'pdf'}
@@ -522,89 +571,12 @@ export default function LoansPage() {
                 >
                   {exporting === 'pdf' ? 'Generando PDF...' : 'Descargar PDF'}
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
-          {/* Tabla de Amortización */}
-          {resultado ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  Tabla de Amortización - Sistema {tipoAmortizacion === 'frances' ? 'Francés' : 'Alemán'}
-                </CardTitle>
-                <CardDescription>
-                  {selectedLoanData?.nombre}
-                  {resultado.cobrosIndirectosMensuales > 0 && ` - Incluye cobros indirectos: $${resultado.cobrosIndirectosMensuales.toFixed(2)}/mes`}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-
-                <div className="overflow-x-auto max-h-300">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50 sticky top-0">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Mes
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Saldo Inicial
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Pago Base
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Interés
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Capital
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Cobros Ind.
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Pago Total
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Saldo Final
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {resultado.tablaAmortizacion.map((fila) => (
-                        <tr key={fila.mes} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {fila.mes}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${fila.saldoInicial.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${fila.pago.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
-                            ${fila.interes.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600">
-                            ${fila.capital.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600">
-                            ${fila.cobrosIndirectos.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">
-                            ${fila.pagoTotal.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${fila.saldoFinal.toFixed(2)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
+          {/* Mensaje para Ver Tabla */}
+          {!resultado && (
             <Card>
               <CardContent className="p-12 text-center">
                 <div className="text-gray-400 mb-4">
@@ -616,7 +588,7 @@ export default function LoansPage() {
                   Simula tu crédito
                 </h3>
                 <p className="text-gray-600">
-                  Selecciona un tipo de crédito y completa los datos, luego haz clic en "Calcular Amortización".
+                  Selecciona un tipo de crédito y completa los datos para comenzar tu simulación.
                 </p>
               </CardContent>
             </Card>
