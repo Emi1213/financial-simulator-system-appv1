@@ -21,9 +21,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark" data-theme="dark">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Aplicar tema dark inmediatamente para evitar flash
+              document.documentElement.classList.add('dark');
+              document.documentElement.setAttribute('data-theme', 'dark');
+            `,
+          }}
+        />
+      </head>
       <body
-        className={`${outfit.variable} font-sans antialiased`}
+        className={`${outfit.variable} font-sans antialiased bg-background text-foreground`}
       >
         <InstitutionProvider>
           <AuthProvider>

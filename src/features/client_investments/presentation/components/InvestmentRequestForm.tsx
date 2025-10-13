@@ -851,7 +851,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
       {/* Indicador de Pasos */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      <Card className="bg-gradient-to-r from-blue-50/10 to-indigo-50/10 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between mb-4">
             {[1, 2].map((step) => (
@@ -892,7 +892,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
 
       {/* Cabecera con información de la inversión */}
       {inversion && (
-        <Card className="bg-green-50 border-green-200">
+        <Card className="bg-green-50/10 dark:bg-green-900/20 border-green-200 dark:border-green-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-green-600" />
@@ -907,8 +907,8 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
                 <p className="text-xs text-gray-500">{inversion.descripcion}</p>
                 
                 {/* Datos del simulador */}
-                <div className="bg-white p-4 rounded-lg border">
-                  <h4 className="font-medium mb-3 text-gray-800">Datos de la Simulación:</h4>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                  <h4 className="font-medium mb-3 text-gray-800 dark:text-gray-200">Datos de la Simulación:</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-green-600" />
@@ -958,7 +958,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
               {/* Columna izquierda: Configuración (2/3) */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Card de Configuración */}
-                <Card className="bg-blue-50 border-blue-200">
+                <Card className="bg-blue-50/10 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Calculator className="h-5 w-5" />
@@ -1065,7 +1065,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
               {/* Columna derecha: Card de Información del Producto */}
               <div className="lg:col-span-1">
                 {selectedProducto ? (
-                  <Card className="bg-green-50 border-green-200 h-fit sticky top-4">
+                  <Card className="bg-green-50/10 dark:bg-green-900/20 border-green-200 dark:border-green-800 h-fit sticky top-4">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-lg text-green-800 flex items-center gap-2">
                         <TrendingUp className="w-5 h-5" />
@@ -1078,13 +1078,13 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
                     <CardContent className="space-y-4">
                       {/* Información principal */}
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-white p-3 rounded-lg border border-green-200">
-                          <div className="text-xs text-green-600 font-medium">Tasa Anual</div>
-                          <div className="text-lg font-bold text-green-800">{selectedProducto.tasa_anual}%</div>
+                        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-green-200 dark:border-green-700">
+                          <div className="text-xs text-green-600 dark:text-green-400 font-medium">Tasa Anual</div>
+                          <div className="text-lg font-bold text-green-800 dark:text-green-300">{selectedProducto.tasa_anual}%</div>
                         </div>
-                        <div className="bg-white p-3 rounded-lg border border-green-200">
-                          <div className="text-xs text-green-600 font-medium">Nivel de Riesgo</div>
-                          <div className="text-sm font-semibold text-green-800">
+                        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-green-200 dark:border-green-700">
+                          <div className="text-xs text-green-600 dark:text-green-400 font-medium">Nivel de Riesgo</div>
+                          <div className="text-sm font-semibold text-green-800 dark:text-green-300">
                             {selectedProducto.tipo_inversion?.nivel_riesgo || 'N/A'}
                           </div>
                         </div>
@@ -1093,49 +1093,49 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
                       {/* Información adicional */}
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-green-600">Tipo de Interés:</span>
-                          <span className="font-medium">{selectedProducto.tipo_inversion?.tipo_interes || 'N/A'}</span>
+                          <span className="text-green-600 dark:text-green-400">Tipo de Interés:</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{selectedProducto.tipo_inversion?.tipo_interes || 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-green-600">Tipo de Tasa:</span>
-                          <span className="font-medium">{selectedProducto.tipo_inversion?.tipo_tasa || 'N/A'}</span>
+                          <span className="text-green-600 dark:text-green-400">Tipo de Tasa:</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{selectedProducto.tipo_inversion?.tipo_tasa || 'N/A'}</span>
                         </div>
                       </div>
 
                       {/* Descripción */}
-                      <div className="bg-white p-3 rounded-lg border border-green-200">
-                        <div className="text-xs text-green-600 font-medium mb-1">Descripción</div>
-                        <p className="text-xs text-gray-700 leading-relaxed">
+                      <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-green-200 dark:border-green-700">
+                        <div className="text-xs text-green-600 dark:text-green-400 font-medium mb-1">Descripción</div>
+                        <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
                           {selectedProducto.descripcion}
                         </p>
                       </div>
 
                       {/* Límites */}
-                      <div className="bg-white p-3 rounded-lg border border-green-200">
-                        <div className="text-xs text-green-600 font-medium mb-2">Límites de Inversión</div>
-                        <div className="space-y-1 text-xs">
+                      <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-green-200 dark:border-green-700">
+                        <div className="text-xs text-green-600 dark:text-green-400 font-medium mb-2">Límites de Inversión</div>
+                        <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
                           <div className="flex justify-between">
                             <span>Monto mínimo:</span>
-                            <span className="font-medium">${selectedProducto.monto_minimo.toLocaleString()}</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">${selectedProducto.monto_minimo.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>Monto máximo:</span>
-                            <span className="font-medium">${selectedProducto.monto_maximo.toLocaleString()}</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">${selectedProducto.monto_maximo.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span>Plazo mínimo:</span>
-                            <span className="font-medium">{selectedProducto.plazo_min_meses} meses</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">{selectedProducto.plazo_min_meses} meses</span>
                           </div>
                           <div className="flex justify-between">
                             <span>Plazo máximo:</span>
-                            <span className="font-medium">{selectedProducto.plazo_max_meses} meses</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">{selectedProducto.plazo_max_meses} meses</span>
                           </div>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 ) : (
-                  <Card className="bg-gray-50 border-gray-200 h-fit sticky top-4">
+                  <Card className="bg-gray-50/10 dark:bg-gray-900/20 border-gray-200 dark:border-gray-700 h-fit sticky top-4">
                     <CardContent className="pt-6">
                       <div className="text-center py-8">
                         <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
@@ -1152,7 +1152,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
             </div>
 
         {/* Información Laboral y Financiera */}
-        <Card className="bg-purple-50 border-purple-200">
+        <Card className="bg-purple-50/10 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building className="h-5 w-5 text-purple-600" />
@@ -1276,7 +1276,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
         {/* PASO 2: Documentación y Verificación */}
         {currentStep === 2 && (
           <>
-        <Card className="bg-orange-50 border-orange-200">
+        <Card className="bg-orange-50/10 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-orange-600" />
@@ -1314,8 +1314,8 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
             />
 
             {/* Estado de verificación */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Estado de Verificación de Identidad</h4>
+            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+              <h4 className="font-medium mb-2 text-gray-900 dark:text-gray-100">Estado de Verificación de Identidad</h4>
               {renderVerificationStatus()}
               {errors.verification && (
                 <p className="text-sm text-red-500 mt-2">{errors.verification}</p>
@@ -1327,12 +1327,12 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
         {/* Botones de navegación y envío para Paso 2 */}
         <div className="flex flex-col gap-4">
           {success && (
-            <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-              <div className="flex items-center gap-2 text-green-700">
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 p-4 rounded-lg">
+              <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
                 <CheckCircle className="h-5 w-5" />
                 <span className="font-medium">¡Solicitud enviada exitosamente!</span>
               </div>
-              <p className="text-sm text-green-600 mt-1">
+              <p className="text-sm text-green-600 dark:text-green-400 mt-1">
                 Su solicitud ha sido registrada y será revisada por nuestro equipo. 
                 Recibirá una notificación del resultado en los próximos días hábiles.
               </p>
