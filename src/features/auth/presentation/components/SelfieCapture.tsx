@@ -112,19 +112,19 @@ export function SelfieCapture({ onCapture, onCancel, isUploading }: SelfieCaptur
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center w-full h-60 bg-gray-100 rounded-lg border-2 border-red-300">
-        <div className="text-center p-6">
-          <div className="text-red-500 mb-4">
-            <Camera className="w-12 h-12 mx-auto mb-2" />
+      <div className="flex flex-col items-center justify-center w-full h-80 bg-gradient-to-br from-red-50 to-red-100 rounded-2xl border-2 border-red-200 shadow-lg">
+        <div className="text-center p-8">
+          <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+            <Camera className="w-10 h-10 text-red-500" />
           </div>
-          <h3 className="text-lg font-semibold text-red-700 mb-2">Error de Cámara</h3>
-          <p className="text-sm text-red-600 mb-4">{error}</p>
-          <div className="flex gap-2 justify-center">
+          <h3 className="text-xl font-bold text-red-800 mb-3">Error de Cámara</h3>
+          <p className="text-red-700 mb-6 max-w-sm">{error}</p>
+          <div className="flex gap-3 justify-center">
             <Button 
               onClick={retryCamera} 
               variant="outline" 
               size="sm"
-              className="text-red-600 border-red-300"
+              className="border-red-300 text-red-700 hover:bg-red-50"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               Reintentar
@@ -143,56 +143,87 @@ export function SelfieCapture({ onCapture, onCancel, isUploading }: SelfieCaptur
   }
 
   return (
-    <div className="relative w-full h-60 bg-black rounded-lg overflow-hidden">
+    <div className="relative w-full h-80 bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 rounded-2xl overflow-hidden border-2 border-gray-700 shadow-2xl">
       {/* Video de la cámara */}
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover rounded-2xl"
       />
       
       {/* Canvas oculto para captura */}
       <canvas ref={canvasRef} className="hidden" />
       
+      {/* Overlay de guía facial */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-48 h-64 border-4 border-white/50 rounded-full border-dashed animate-pulse"></div>
+        </div>
+        <div className="absolute top-4 left-0 right-0 text-center">
+          <div className="inline-block bg-black/70 backdrop-blur-sm rounded-full px-4 py-2">
+            <p className="text-white text-sm font-medium">Centra tu rostro en el óvalo</p>
+          </div>
+        </div>
+      </div>
+      
       {/* Overlay de carga */}
       {!isReady && (
-        <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
-          <div className="text-white text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-            <p className="text-sm">Iniciando cámara...</p>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/80 to-gray-900/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="text-white text-center bg-black/50 rounded-2xl p-8">
+            <div className="w-12 h-12 mx-auto mb-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+            </div>
+            <p className="text-lg font-medium">Iniciando cámara...</p>
+            <p className="text-sm text-gray-300 mt-2">Preparando captura de selfie</p>
           </div>
         </div>
       )}
       
-
-      
-      {/* Controles */}
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
-        <Button
-          onClick={capturePhoto}
-          disabled={!isReady || isUploading}
-          className="bg-white text-black hover:bg-gray-200 rounded-full w-16 h-16 p-0"
-        >
-          {isUploading ? (
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-black"></div>
-          ) : (
-            <Camera className="w-8 h-8" />
-          )}
-        </Button>
-        
+      {/* Controles modernos */}
+      <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-6">
         <Button
           onClick={onCancel}
           disabled={isUploading}
           variant="outline"
-          className="bg-white bg-opacity-90 text-black hover:bg-white rounded-full w-12 h-12 p-0"
+          size="icon"
+          className="bg-black/50 border-white/30 text-white hover:bg-black/70 backdrop-blur-sm rounded-full w-14 h-14"
         >
-          <X className="w-5 h-5" />
+          <X className="w-6 h-6" />
         </Button>
+        
+        <Button
+          onClick={capturePhoto}
+          disabled={!isReady || isUploading}
+          size="icon"
+          className="bg-white text-black hover:bg-gray-100 rounded-full w-20 h-20 shadow-2xl border-4 border-white/20 relative overflow-hidden"
+        >
+          {isUploading ? (
+            <div className="absolute inset-0 bg-blue-600 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-4 border-white border-t-transparent"></div>
+            </div>
+          ) : (
+            <Camera className="w-10 h-10" />
+          )}
+        </Button>
+        
+        <div className="w-14 h-14 flex items-center justify-center">
+          {isReady && (
+            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg"></div>
+          )}
+        </div>
       </div>
       
-
+      {/* Indicador de estado */}
+      {isUploading && (
+        <div className="absolute top-4 right-4">
+          <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+            <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+            Procesando...
+          </div>
+        </div>
+      )}
     </div>
   );
 }
