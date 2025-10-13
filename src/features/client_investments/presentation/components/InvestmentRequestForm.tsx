@@ -12,6 +12,7 @@ import { useClientInvestment, useInversionProduct } from '../../hooks/useClientI
 import { SolicitudFormData } from '../../types';
 import { DocumentPreview } from '@/features/client_investments/presentation/components/DocumentPreview';
 import { useInvestmentProducts } from '../../hooks/useInvestmentProducts';
+import { SelfieCapture } from '@/features/auth/presentation/components/SelfieCapture';
 
 interface InvestmentRequestFormProps {
   userId: number;
@@ -68,6 +69,11 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
   const [simulatorErrors, setSimulatorErrors] = useState<Record<string, string>>({});
   const [uploadingDocument, setUploadingDocument] = useState(false);
   const [uploadingSelfie, setUploadingSelfie] = useState(false);
+  
+  // Estado para el sistema de pasos
+  const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [showSelfieCapture, setShowSelfieCapture] = useState(false);
 
   // Cleanup de URLs de objeto al desmontar
   useEffect(() => {
@@ -791,19 +797,114 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
     );
   }
 
+  // Función para validar paso actual
+  const validateCurrentStep = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    
+    if (currentStep === 1) {
+      // Validar datos del simulador
+      if (!simulatorData.productoId) {
+        newErrors.simulatorProducto = 'Debe seleccionar un producto de inversión';
+      }
+      if (!simulatorData.monto || parseFloat(simulatorData.monto) <= 0) {
+        newErrors.simulatorMonto = 'Debe ingresar un monto válido';
+      }
+      if (!simulatorData.plazo || parseInt(simulatorData.plazo) <= 0) {
+        newErrors.simulatorPlazo = 'Debe ingresar un plazo válido';
+      }
+      
+      // Validar datos laborales
+      if (!formData.empresa.trim()) {
+        newErrors.empresa = 'La empresa es requerida';
+      }
+      if (!formData.ruc.trim()) {
+        newErrors.ruc = 'El RUC es requerido';
+      }
+      if (!formData.tipoEmpleo) {
+        newErrors.tipoEmpleo = 'El tipo de empleo es requerido';
+      }
+      if (!formData.ingresos || parseFloat(formData.ingresos) <= 0) {
+        newErrors.ingresos = 'Los ingresos son requeridos';
+      }
+      if (!formData.egresos || parseFloat(formData.egresos) < 0) {
+        newErrors.egresos = 'Los egresos son requeridos';
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Función para avanzar al siguiente paso
+  const nextStep = () => {
+    if (validateCurrentStep()) {
+      setCompletedSteps(prev => [...prev, currentStep]);
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  // Función para retroceder paso
+  const previousStep = () => {
+    setCurrentStep(prev => Math.max(1, prev - 1));
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
+      {/* Indicador de Pasos */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between mb-4">
+            {[1, 2].map((step) => (
+              <div key={step} className="flex items-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  step === currentStep 
+                    ? 'bg-blue-600 text-white' 
+                    : completedSteps.includes(step) 
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-200 text-gray-600'
+                }`}>
+                  {completedSteps.includes(step) ? '✓' : step}
+                </div>
+                <div className="ml-3 text-sm">
+                  <div className={`font-medium ${step === currentStep ? 'text-blue-600' : 'text-gray-600'}`}>
+                    {step === 1 ? 'Información y Configuración' : 'Verificación y Documentos'}
+                  </div>
+                  <div className="text-gray-500 text-xs">
+                    {step === 1 ? 'Complete sus datos financieros' : 'Suba documentos y verificación facial'}
+                  </div>
+                </div>
+                {step < 2 && (
+                  <div className={`mx-4 h-0.5 w-16 ${completedSteps.includes(step) ? 'bg-green-600' : 'bg-gray-200'}`} />
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              {currentStep === 1 
+                ? 'Configure su inversión y complete sus datos laborales para continuar' 
+                : 'Suba su documentación y complete la verificación facial para finalizar su solicitud'
+              }
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Cabecera con información de la inversión */}
       {inversion && (
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="bg-green-50 border-green-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Solicitud de Inversión: {inversion.nombre}
+              <TrendingUp className="h-5 w-5 text-green-600" />
+              Formulario de Solicitud para Inversión: {inversion.nombre}
             </CardTitle>
             <CardDescription className="text-base">
               <div className="space-y-3">
-                <p className="text-sm text-gray-600">{inversion.descripcion}</p>
+                <p className="text-sm text-gray-600">
+                  Está iniciando el proceso de solicitud para el producto: <strong>{inversion.nombre}</strong>. 
+                  Complete toda la información requerida en los siguientes pasos para procesar su solicitud de inversión.
+                </p>
+                <p className="text-xs text-gray-500">{inversion.descripcion}</p>
                 
                 {/* Datos del simulador */}
                 <div className="bg-white p-4 rounded-lg border">
@@ -849,15 +950,18 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Datos del Simulador Editables */}
-        <Card className="bg-blue-50 border-blue-200">
+        {/* PASO 1: Configuración de Inversión e Información Laboral */}
+        {currentStep === 1 && (
+          <>
+            {/* Datos del Simulador Editables */}
+            <Card className="bg-blue-50 border-blue-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calculator className="h-5 w-5" />
-              Configurar Inversión
+              Paso 1: Configurar su Propuesta de Inversión
             </CardTitle>
             <CardDescription>
-              Ajuste el producto, monto y plazo de su inversión
+              Seleccione el producto de inversión que más le convenga y configure el monto y plazo según sus necesidades financieras
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -983,14 +1087,14 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
         </Card>
 
         {/* Información Laboral y Financiera */}
-        <Card>
+        <Card className="bg-purple-50 border-purple-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Building className="h-5 w-5" />
-              Información Laboral y Financiera
+              <Building className="h-5 w-5 text-purple-600" />
+              Información Laboral y Situación Financiera
             </CardTitle>
             <CardDescription>
-              Complete sus datos laborales y capacidad financiera
+              Proporcione detalles sobre su empleo actual y capacidad económica. Esta información nos ayuda a evaluar su perfil de riesgo y capacidad de inversión.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -1108,15 +1212,39 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
           </CardContent>
         </Card>
 
-        {/* Documentación y Verificación */}
-        <Card>
+        {/* Botones de navegación para Paso 1 */}
+        <div className="flex justify-between">
+          <Button
+            type="button"
+            variant="outline"
+            disabled
+            className="opacity-50"
+          >
+            Anterior
+          </Button>
+          <Button
+            type="button"
+            onClick={nextStep}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Continuar con Verificación →
+          </Button>
+        </div>
+        </>
+        )}
+
+        {/* PASO 2: Documentación y Verificación */}
+        {currentStep === 2 && (
+          <>
+        <Card className="bg-orange-50 border-orange-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Documentación y Verificación
+              <FileText className="h-5 w-5 text-orange-600" />
+              Paso 2: Documentación y Verificación de Identidad
             </CardTitle>
             <CardDescription>
-              Opcionalmente, suba su documento de validación laboral y complete la verificación facial para acelerar el proceso
+              Para finalizar su solicitud, por favor suba su documento laboral (opcional) y complete la verificación facial requerida. 
+              Esto nos ayuda a validar su identidad y procesar su solicitud de manera segura.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -1156,7 +1284,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
           </CardContent>
         </Card>
 
-        {/* Estado de envío y botones */}
+        {/* Botones de navegación y envío para Paso 2 */}
         <div className="flex flex-col gap-4">
           {success && (
             <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
@@ -1174,27 +1302,36 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
           {(error || errors.submit) && (
             <p className="text-sm text-red-500 text-center">{error || errors.submit}</p>
           )}
+
+          <div className="flex justify-between gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={previousStep}
+              className="flex-1"
+            >
+              ← Regresar a Información
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1"
+              disabled={isLoading || uploadingDocument || uploadingSelfie}
+              size="lg"
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Procesando Solicitud...
+                </div>
+              ) : (
+                'Finalizar Solicitud de Inversión'
+              )}
+            </Button>
+          </div>
           
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading || uploadingDocument || uploadingSelfie}
-            size="lg"
-          >
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Enviando Solicitud...
-              </div>
-            ) : (
-              'Enviar Solicitud de Inversión'
-            )}
-          </Button>
-          
-          <p className="text-xs text-gray-500 text-center">
-            Al enviar esta solicitud, acepta nuestros términos y condiciones para el procesamiento de inversiones
-          </p>
         </div>
+        </>
+        )}
       </form>
     </div>
   );

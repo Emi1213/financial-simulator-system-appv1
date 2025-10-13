@@ -42,11 +42,18 @@ export const InvestmentRequestView: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-4">Solicitud de Inversión</h1>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Complete el formulario con su información laboral y financiera para procesar su solicitud de inversión.
-          La verificación facial es requerida para confirmar su identidad.
+        <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Formulario de Solicitud de Inversión
+        </h1>
+        <p className="text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          Bienvenido al proceso de solicitud de inversión. Complete la información en dos sencillos pasos: 
+          primero configure su inversión y proporcione sus datos laborales, luego suba su documentación 
+          y complete la verificación de identidad para finalizar su solicitud.
         </p>
+        <div className="mt-4 inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm">
+          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+          Proceso seguro y protegido
+        </div>
       </div>
 
       {(() => {
