@@ -289,11 +289,11 @@ export default function LoansPage() {
   const selectedLoanData = loanTypes.find(l => l.id_credito.toString() === selectedLoan);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-black py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Simulador de Créditos</h1>
+          <h1 className="text-3xl font-bold text-gray-100">Simulador de Créditos</h1>
           <p className="text-lg text-gray-600 mt-2">
             Calcula tu tabla de amortización y planifica tus pagos
           </p>
@@ -435,7 +435,7 @@ export default function LoansPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* Card Principal - Cuota */}
-              <Card className="lg:col-span-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+              <Card className="lg:col-span-2 ">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -476,9 +476,9 @@ export default function LoansPage() {
               </Card>
 
               {/* Card de Totales */}
-              <Card className="border-blue-200 bg-gradient-to-b from-blue-50 to-indigo-50">
+              <Card className="">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-blue-800 text-sm">Resumen Financiero</CardTitle>
+                  <CardTitle className="text-blue-200 text-sm">Resumen Financiero</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0 space-y-3">
                   <div className="text-center">
@@ -487,7 +487,7 @@ export default function LoansPage() {
                   </div>
                   <Separator />
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">${resultado.totalPagar.toFixed(0)}</div>
+                    <div className="text-2xl font-bold text-blue-200">${resultado.totalPagar.toFixed(0)}</div>
                     <div className="text-xs text-muted-foreground">Total a Pagar</div>
                   </div>
                   
@@ -496,11 +496,11 @@ export default function LoansPage() {
                     <>
                       <Separator />
                       <div className="space-y-2">
-                        <div className="text-xs font-medium text-blue-800">Cobros Adicionales:</div>
+                        <div className="text-xs font-medium text-blue-200">Cobros Adicionales:</div>
                         <div className="space-y-1">
                           {selectedLoanData.cobros_indirectos.map((cobro, index) => (
                             <div key={index} className="flex justify-between items-center text-xs">
-                              <span className="text-blue-700">{cobro.nombre}</span>
+                              <span className="text-blue-200">{cobro.nombre}</span>
                               <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 h-5 px-2">
                                 {cobro.tipo_interes === 'porcentaje' ? `${cobro.interes}%` : `$${cobro.interes}`}
                               </Badge>
