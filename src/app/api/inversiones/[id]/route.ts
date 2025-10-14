@@ -23,7 +23,7 @@ export async function GET(
         id,
         nombre,
         descripcion,
-        tasa_interes,
+        tasa_anual,
         plazo_minimo,
         plazo_maximo,
         monto_minimo,

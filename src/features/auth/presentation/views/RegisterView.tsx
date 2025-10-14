@@ -694,30 +694,38 @@ function DocumentUploadStep({ data, setData, personalData, onNext, onBack, showT
     }
 
     try {
-      setUploading({ ...uploading, [type]: true });
-      setErrors({ ...errors, [type]: '' });
+      setUploading(prev => ({ ...prev, [type]: true }));
+      setErrors(prev => ({ ...prev, [type]: '' }));
 
       // Crear preview
       const previewUrl = URL.createObjectURL(file);
-      setPreviews({ ...previews, [type]: previewUrl });
+      setPreviews(prev => ({ ...prev, [type]: previewUrl }));
 
       // Subir archivo
       const uploadedUrl = await uploadImage(file, type);
       
       // Actualizar datos
-      setData({
-        ...data,
-        [type === 'frontal' ? 'cedulaFrontal' : 'cedulaReverso']: file,
-        [type === 'frontal' ? 'cedulaFrontalUri' : 'cedulaReversoUri']: uploadedUrl
+      setData((prev: DocumentData) => {
+        const newData = {
+          ...prev,
+          [type === 'frontal' ? 'cedulaFrontal' : 'cedulaReverso']: file,
+          [type === 'frontal' ? 'cedulaFrontalUri' : 'cedulaReversoUri']: uploadedUrl
+        };
+        console.log(`Actualizando ${type}:`, {
+          prevData: prev,
+          newData: newData,
+          uploadedUrl: uploadedUrl
+        });
+        return newData;
       });
 
     } catch (error: any) {
       console.error('Error uploading image:', error);
       const errorMessage = error.message || 'Error al subir la imagen';
-      setErrors({ ...errors, [type]: errorMessage });
+      setErrors(prev => ({ ...prev, [type]: errorMessage }));
       showToast('error', errorMessage);
     } finally {
-      setUploading({ ...uploading, [type]: false });
+      setUploading(prev => ({ ...prev, [type]: false }));
     }
   };
 

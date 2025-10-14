@@ -31,13 +31,20 @@ export const uploadImageToSupabase = async (
         search: fileName.split('_')[0] // Buscar por cédula
       });
 
-    // Eliminar archivos existentes del mismo usuario
+    // Eliminar archivos existentes del mismo tipo y usuario
     if (existingFiles && existingFiles.length > 0) {
+      const userPrefix = fileName.split('_')[0]; // ej: "1850210003"
+      const fileType = fileName.split('_')[1]; // ej: "cedula-frontal" o "cedula-reverso"
+      
       const filesToDelete = existingFiles
-        .filter(f => f.name.startsWith(fileName.split('_')[0]))
+        .filter(f => {
+          const parts = f.name.split('_');
+          return parts[0] === userPrefix && parts[1] === fileType;
+        })
         .map(f => f.name);
       
       if (filesToDelete.length > 0) {
+        console.log(`Eliminando archivos previos de tipo ${fileType}:`, filesToDelete);
         await supabase.storage
           .from(bucketName)
           .remove(filesToDelete);
