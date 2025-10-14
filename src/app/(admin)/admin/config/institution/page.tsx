@@ -563,8 +563,8 @@ export default function InstitutionConfigPage() {
 
               {/* Información de contacto */}
               <div className="space-y-3 text-sm">
-                <h4 className="font-medium text-gray-700">Información de Contacto:</h4>
-                <div className="space-y-2 text-gray-600">
+                <h4 className="font-medium text-gray-200">Información de Contacto:</h4>
+                <div className="space-y-2 text-gray-200">
                   <p><strong>Propietario:</strong> {formData.owner || 'No especificado'}</p>
                   <p><strong>Dirección:</strong> {formData.direccion || 'No especificada'}</p>
                   <p><strong>Teléfono:</strong> {formData.telefono || 'No especificado'}</p>
@@ -583,7 +583,7 @@ export default function InstitutionConfigPage() {
 
               {/* Elementos de UI de ejemplo */}
               <div className="space-y-3">
-                <p className="text-sm font-medium text-gray-700">Elementos de ejemplo:</p>
+                <p className="text-sm font-medium text-gray-200">Elementos de ejemplo:</p>
                 
                 <Button 
                   style={{ backgroundColor: formData.color_primario }}
@@ -626,7 +626,7 @@ export default function InstitutionConfigPage() {
                     className="w-4 h-4 rounded border"
                     style={{ backgroundColor: formData.color_primario }}
                   />
-                  <code className="bg-gray-100 px-2 py-1 rounded">
+                  <code className="bg-gray-100 px-2 py-1 rounded text-black">
                     {formData.color_primario}
                   </code>
                 </div>
@@ -635,7 +635,7 @@ export default function InstitutionConfigPage() {
                     className="w-4 h-4 rounded border"
                     style={{ backgroundColor: formData.color_secundario }}
                   />
-                  <code className="bg-gray-100 px-2 py-1 rounded">
+                  <code className="bg-gray-100 px-2 py-1 rounded text-black">
                     {formData.color_secundario}
                   </code>
                 </div>
