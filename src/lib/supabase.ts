@@ -21,33 +21,37 @@ export const generateUniqueFileName = (identifier: string, type: 'selfie' | 'ced
 export const uploadImageToSupabase = async (
   file: File, 
   bucketName: 'selfies' | 'cedulas' | 'documents', 
-  fileName: string
+  fileName: string,
+  deleteExisting: boolean = true
 ): Promise<string> => {
   try {
-    // Verificar si el archivo ya existe y eliminarlo
-    const { data: existingFiles } = await supabase.storage
-      .from(bucketName)
-      .list('', {
-        search: fileName.split('_')[0] // Buscar por cédula
-      });
+    // Solo eliminar archivos existentes si deleteExisting es true
+    if (deleteExisting) {
+      // Verificar si el archivo ya existe y eliminarlo
+      const { data: existingFiles } = await supabase.storage
+        .from(bucketName)
+        .list('', {
+          search: fileName.split('_')[0] // Buscar por cédula
+        });
 
-    // Eliminar archivos existentes del mismo tipo y usuario
-    if (existingFiles && existingFiles.length > 0) {
-      const userPrefix = fileName.split('_')[0]; // ej: "1850210003"
-      const fileType = fileName.split('_')[1]; // ej: "cedula-frontal" o "cedula-reverso"
-      
-      const filesToDelete = existingFiles
-        .filter(f => {
-          const parts = f.name.split('_');
-          return parts[0] === userPrefix && parts[1] === fileType;
-        })
-        .map(f => f.name);
-      
-      if (filesToDelete.length > 0) {
-        console.log(`Eliminando archivos previos de tipo ${fileType}:`, filesToDelete);
-        await supabase.storage
-          .from(bucketName)
-          .remove(filesToDelete);
+      // Eliminar archivos existentes del mismo tipo y usuario
+      if (existingFiles && existingFiles.length > 0) {
+        const userPrefix = fileName.split('_')[0]; // ej: "1850210003"
+        const fileType = fileName.split('_')[1]; // ej: "cedula-frontal" o "cedula-reverso"
+        
+        const filesToDelete = existingFiles
+          .filter(f => {
+            const parts = f.name.split('_');
+            return parts[0] === userPrefix && parts[1] === fileType;
+          })
+          .map(f => f.name);
+        
+        if (filesToDelete.length > 0) {
+          console.log(`Eliminando archivos previos de tipo ${fileType}:`, filesToDelete);
+          await supabase.storage
+            .from(bucketName)
+            .remove(filesToDelete);
+        }
       }
     }
 

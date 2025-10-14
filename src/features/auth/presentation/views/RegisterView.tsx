@@ -942,7 +942,8 @@ function VerificationStep({ data, setData, documentData, onBack, onSubmit, isLoa
     );
 
     const bucketName = 'selfies';
-    const publicUrl = await uploadImageToSupabase(file, bucketName, fileName);
+    // No eliminar selfies existentes (deleteExisting: false) porque son usuarios anónimos diferentes
+    const publicUrl = await uploadImageToSupabase(file, bucketName, fileName, false);
     return publicUrl;
   };
 
