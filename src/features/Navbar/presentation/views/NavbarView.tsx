@@ -38,6 +38,11 @@ export function NavbarView() {
               href: "/admin/config/indirects",
               description: "Agregar y gestionar tipos de crédito",
             },
+            {
+              label: "Configurar Inversiones",
+              href: "/admin/investments",
+              description: "Gestionar productos de inversión",
+            },
           ],
         },
         {
@@ -53,11 +58,6 @@ export function NavbarView() {
         {
           label: "Inversiones",
           subItems: [
-            {
-              label: "Configurar Inversiones",
-              href: "/admin/investments",
-              description: "Gestionar productos de inversión",
-            },
             {
               label: "Solicitudes de Inversión",
               href: "/admin/request-investments",

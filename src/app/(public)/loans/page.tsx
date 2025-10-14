@@ -272,14 +272,14 @@ export default function LoansPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="animate-pulse text-center">
-          <div className="h-8 bg-gray-200 rounded w-64 mb-4 mx-auto"></div>
-          <div className="h-4 bg-gray-200 rounded w-48 mb-8 mx-auto"></div>
+          <div className="h-8 bg-gray-600 rounded w-64 mb-4 mx-auto"></div>
+          <div className="h-4 bg-gray-600 rounded w-48 mb-8 mx-auto"></div>
           <div className="space-y-4">
-            <div className="h-10 bg-gray-200 rounded w-80"></div>
-            <div className="h-10 bg-gray-200 rounded w-80"></div>
-            <div className="h-10 bg-gray-200 rounded w-80"></div>
+            <div className="h-10 bg-gray-600 rounded w-80"></div>
+            <div className="h-10 bg-gray-600 rounded w-80"></div>
+            <div className="h-10 bg-gray-600 rounded w-80"></div>
           </div>
         </div>
       </div>

@@ -32,15 +32,15 @@ export const Modal: React.FC<ModalProps> = ({
             <div className="flex min-h-screen items-center justify-center p-4">
                 {/* Overlay */}
                 <div 
-                    className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+                    className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 transition-opacity"
                     onClick={onClose}
                 />
                 
                 {/* Modal */}
-                <div className={`relative bg-white rounded-lg shadow-xl ${sizeClasses[size]} w-full`}>
+                <div className={`relative bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 ${sizeClasses[size]} w-full`}>
                     {/* Header */}
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                             {title}
                         </h3>
                         <Button
@@ -67,7 +67,7 @@ export const Modal: React.FC<ModalProps> = ({
                     </div>
                     
                     {/* Content */}
-                    <div className="px-6 py-4 max-h-96 overflow-y-auto">
+                    <div className="px-6 py-4 max-h-96 overflow-y-auto bg-white dark:bg-gray-800">
                         {children}
                     </div>
                 </div>

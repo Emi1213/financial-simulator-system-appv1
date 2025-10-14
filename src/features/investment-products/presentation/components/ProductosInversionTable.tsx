@@ -32,78 +32,78 @@ export const ProductosInversionTable: React.FC<ProductosInversionTableProps> = (
     if (productos.length === 0) {
         return (
             <div className="text-center py-8">
-                <p className="text-gray-500">No hay productos de inversión registrados</p>
+                <p className="text-gray-500 dark:text-gray-400">No hay productos de inversión registrados</p>
             </div>
         );
     }
 
     return (
         <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                <thead className="bg-gray-50">
+            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Producto
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Tipo
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Estado
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Montos
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Plazos
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Tasa Anual
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Acciones
                         </th>
                     </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {productos.map((producto) => (
-                        <tr key={producto.producto_inversion_id} className="hover:bg-gray-50">
+                        <tr key={producto.producto_inversion_id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <td className="px-6 py-4">
                                 <div>
-                                    <div className="font-medium text-gray-900">{producto.nombre}</div>
-                                    <div className="text-sm text-gray-500 max-w-xs truncate" title={producto.descripcion}>
+                                    <div className="font-medium text-gray-900 dark:text-gray-100">{producto.nombre}</div>
+                                    <div className="text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate" title={producto.descripcion}>
                                         {producto.descripcion}
                                     </div>
                                 </div>
                             </td>
                             <td className="px-6 py-4">
-                                <div className="text-sm text-gray-900">
+                                <div className="text-sm text-gray-900 dark:text-gray-100">
                                     {producto.tipo_inversion?.nombre || 'Sin tipo'}
                                 </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                     producto.estado === 'Activo'
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-red-100 text-red-800'
+                                        ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
+                                        : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400'
                                 }`}>
                                     {producto.estado}
                                 </span>
                             </td>
                             <td className="px-6 py-4">
-                                <div className="text-sm text-gray-900">
+                                <div className="text-sm text-gray-900 dark:text-gray-100">
                                     <div>Min: {formatMoney(producto.monto_minimo)}</div>
                                     <div>Máx: {formatMoney(producto.monto_maximo)}</div>
                                 </div>
                             </td>
                             <td className="px-6 py-4">
-                                <div className="text-sm text-gray-900">
+                                <div className="text-sm text-gray-900 dark:text-gray-100">
                                     <div>Min: {formatMeses(producto.plazo_min_meses)}</div>
                                     <div>Máx: {formatMeses(producto.plazo_max_meses)}</div>
                                 </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm font-medium text-gray-900">
+                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {producto.tasa_anual}%
                                 </div>
                             </td>
@@ -122,7 +122,7 @@ export const ProductosInversionTable: React.FC<ProductosInversionTableProps> = (
                                         size="sm"
                                         onClick={() => onDelete(producto.producto_inversion_id)}
                                         disabled={loading}
-                                        className="text-red-600 hover:text-red-700"
+                                        className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                                     >
                                         Eliminar
                                     </Button>
