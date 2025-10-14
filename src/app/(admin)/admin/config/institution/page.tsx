@@ -313,7 +313,7 @@ export default function InstitutionConfigPage() {
                   <Label htmlFor="logo">Logo de la Institución</Label>
                   
                   {/* Botón para subir archivo */}
-                  <div className="relative inline-block">
+                  <div className="relative inline-block w-full">
                     <input
                       type="file"
                       accept="image/*"
@@ -330,29 +330,47 @@ export default function InstitutionConfigPage() {
                       type="button"
                       variant="outline"
                       disabled={uploadingLogo}
-                      className="w-full"
+                      className="w-full dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
                       {uploadingLogo ? 'Subiendo...' : formData.logo ? 'Cambiar Logo' : 'Subir Logo'}
                     </Button>
                   </div>
                   
-                  {/* Preview del logo */}
+                  {/* Preview del logo mejorado */}
                   {formData.logo && (
-                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                      <img 
-                        src={formData.logo} 
-                        alt="Logo preview" 
-                        className="h-16 object-contain border rounded bg-white p-2"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                      <p className="text-xs text-gray-500 mt-2">
-                        {formData.logo.split('/').pop()}
-                      </p>
+                    <div className="mt-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-start gap-4">
+                        {/* Contenedor de imagen con tamaño fijo */}
+                        <div className="flex-shrink-0 w-20 h-20 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg p-2 flex items-center justify-center overflow-hidden">
+                          <img 
+                            src={formData.logo} 
+                            alt="Logo preview" 
+                            className="max-w-full max-h-full object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                        
+                        {/* Información del archivo */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                            Logo cargado
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {formData.logo.split('/').pop()}
+                          </p>
+                          <div className="mt-2 flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-xs text-green-600 dark:text-green-400">
+                              Listo para usar
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Formatos soportados: JPG, PNG, SVG (máximo 5MB)
                   </p>
                 </div>
