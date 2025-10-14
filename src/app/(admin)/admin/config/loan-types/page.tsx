@@ -354,15 +354,15 @@ export default function LoanTypesPage() {
 
       {/* Modal Form */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border dark:border-gray-700 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                 {editingLoan ? 'Editar Crédito' : 'Nuevo Crédito'}
               </h2>
               <button
                 onClick={resetForm}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -374,27 +374,27 @@ export default function LoanTypesPage() {
               {/* Información Básica */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Nombre *
                   </label>
                   <input 
                     type="text" 
                     value={formData.nombre} 
                     onChange={e => handleFormChange('nombre', e.target.value)} 
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors placeholder-gray-500 dark:placeholder-gray-400" 
                     required 
                     placeholder="Ej: Crédito Personal"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Tipo *
                   </label>
                   <input 
                     type="text" 
                     value={formData.tipo} 
                     onChange={e => handleFormChange('tipo', e.target.value)} 
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors placeholder-gray-500 dark:placeholder-gray-400" 
                     required 
                     placeholder="Ej: Personal, Hipotecario, etc."
                   />
@@ -403,13 +403,13 @@ export default function LoanTypesPage() {
 
               {/* Descripción */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Descripción
                 </label>
                 <textarea 
                   value={formData.descripcion} 
                   onChange={e => handleFormChange('descripcion', e.target.value)} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                  className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors placeholder-gray-500 dark:placeholder-gray-400" 
                   rows={2}
                   placeholder="Breve descripción del tipo de crédito..."
                 />
@@ -418,7 +418,7 @@ export default function LoanTypesPage() {
               {/* Interés y Plazos */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Interés Anual (%) *
                   </label>
                   <input 
@@ -427,12 +427,12 @@ export default function LoanTypesPage() {
                     min="0"
                     value={formData.interes} 
                     onChange={e => handleNumberChange('interes', e.target.value)} 
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors" 
                     required 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Plazo Mínimo (meses) *
                   </label>
                   <input 
@@ -440,12 +440,12 @@ export default function LoanTypesPage() {
                     min="1"
                     value={formData.plazo_min} 
                     onChange={e => handleNumberChange('plazo_min', e.target.value)} 
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors" 
                     required 
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Plazo Máximo (meses) *
                   </label>
                   <input 
@@ -453,7 +453,7 @@ export default function LoanTypesPage() {
                     min="1"
                     value={formData.plazo_max} 
                     onChange={e => handleNumberChange('plazo_max', e.target.value)} 
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                    className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors" 
                     required 
                   />
                 </div>
@@ -461,13 +461,13 @@ export default function LoanTypesPage() {
 
               {/* Información Adicional */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Información Adicional
                 </label>
                 <textarea 
                   value={formData.informacion} 
                   onChange={e => handleFormChange('informacion', e.target.value)} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                  className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors placeholder-gray-500 dark:placeholder-gray-400" 
                   rows={3}
                   placeholder="Información adicional, requisitos, condiciones especiales..."
                 />
@@ -475,25 +475,25 @@ export default function LoanTypesPage() {
 
               {/* Cobros Indirectos */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   Cobros Indirectos Asociados
                 </label>
-                <div className="border border-gray-300 rounded-lg p-4 max-h-48 overflow-y-auto space-y-2 bg-gray-50">
+                <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 max-h-48 overflow-y-auto space-y-2 bg-gray-50 dark:bg-gray-700">
                   {indirects.map(ind => (
-                    <label key={ind.id_indirecto} className="flex items-center space-x-3 p-2 hover:bg-white rounded-lg transition-colors cursor-pointer">
+                    <label key={ind.id_indirecto} className="flex items-center space-x-3 p-2 hover:bg-white dark:hover:bg-gray-600 rounded-lg transition-colors cursor-pointer">
                       <input 
                         type="checkbox" 
                         checked={selectedIndirects.includes(ind.id_indirecto)} 
                         onChange={() => toggleIndirectSelection(ind.id_indirecto)} 
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" 
+                        className="h-4 w-4 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-600 rounded" 
                       />
-                      <span className="text-sm text-gray-700 flex-1">
+                      <span className="text-sm text-gray-700 dark:text-gray-200 flex-1">
                         {getIndirectDisplayText(ind)}
                       </span>
                     </label>
                   ))}
                   {indirects.length === 0 && (
-                    <p className="text-sm text-gray-500 text-center py-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
                       No hay cobros indirectos disponibles
                     </p>
                   )}
@@ -506,30 +506,30 @@ export default function LoanTypesPage() {
                   type="checkbox" 
                   checked={formData.estado} 
                   onChange={e => handleFormChange('estado', e.target.checked)} 
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" 
+                  className="h-4 w-4 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-600 rounded" 
                 />
-                <label className="ml-2 text-sm text-gray-700 font-medium">
+                <label className="ml-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                   Crédito activo y disponible
                 </label>
               </div>
 
               {/* Actions */}
-              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <button 
                   type="button" 
                   onClick={resetForm}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  className="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors font-medium"
                   disabled={saving}
                 >
                   Cancelar
                 </button>
-                <button 
+                <Button
                   type="submit" 
                   disabled={saving} 
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                  className="px-6 py-2  rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
                 >
                   {saving ? 'Guardando...' : (editingLoan ? 'Actualizar' : 'Crear Crédito')}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

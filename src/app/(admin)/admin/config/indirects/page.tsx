@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useState, useEffect } from 'react';
 
 interface LoanType {
@@ -108,92 +110,101 @@ export default function LoanTypesPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 dark:bg-gray-900 min-h-screen">
       <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Cobros Indirectos</h1>
-        <button onClick={handleAddNew} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Cobros Indirectos</h1>
+        <Button onClick={handleAddNew} variant="default" className="px-4 py-2 rounded-md">
           + Agregar Tipo
-        </button>
+        </Button>
       </div>
 
-      <table className="min-w-full divide-y divide-gray-200 bg-white rounded-lg shadow overflow-hidden">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left">Nombre</th>
-            <th className="px-6 py-3 text-left">Tipo</th>
-            <th className="px-6 py-3 text-left">Interés</th>
-            <th className="px-6 py-3 text-left">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 rounded-lg shadow overflow-hidden bg-white dark:bg-gray-800">
+        <TableHeader className="bg-gray-50 dark:bg-gray-700">
+          <TableRow className="hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+            <TableHead className="px-6 py-3 text-left text-gray-700 dark:text-gray-300 font-medium">Nombre</TableHead>
+            <TableHead className="px-6 py-3 text-left text-gray-700 dark:text-gray-300 font-medium">Tipo</TableHead>
+            <TableHead className="px-6 py-3 text-left text-gray-700 dark:text-gray-300 font-medium">Interés</TableHead>
+            <TableHead className="px-6 py-3 text-left text-gray-700 dark:text-gray-300 font-medium">Acciones</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
           {loanTypes.map(loan => (
-            <tr key={loan.id_indirecto}>
-              <td className="px-6 py-4">{loan.nombre}</td>
-              <td className="px-6 py-4">{loan.tipo}</td>
-              <td className="px-6 py-4">
+            <TableRow key={loan.id_indirecto} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <TableHead className="px-6 py-4 text-gray-900 dark:text-gray-100">{loan.nombre}</TableHead>
+              <TableHead className="px-6 py-4 text-gray-900 dark:text-gray-100">{loan.tipo}</TableHead>
+              <TableHead className="px-6 py-4 text-gray-900 dark:text-gray-100">
                 {loan.interes} {loan.tipo_interes === 'porcentaje' ? '%' : 'USD'}
-              </td>
-              <td className="px-6 py-4">
-                <button onClick={() => handleEdit(loan)} className="text-blue-600 hover:text-blue-900 mr-2">Editar</button>
-                <button
+              </TableHead>
+              <TableHead className="px-6 py-4">
+                <Button 
+                  onClick={() => handleEdit(loan)} 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-2"
+                >
+                  Editar
+                </Button>
+                <Button
                   onClick={() => handleDelete(loan.id_indirecto!)}
-                  className="text-red-600 hover:text-red-900"
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                 >
                   Eliminar
-                </button>
-              </td>
-            </tr>
+                </Button>
+              </TableHead>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">{editingLoan ? 'Editar' : 'Nuevo'} Cobro Indirecto</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-2xl border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">{editingLoan ? 'Editar' : 'Nuevo'} Cobro Indirecto</h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Nombre</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Nombre</label>
                 <input
                   type="text"
                   required
                   value={formData.nombre}
                   onChange={(e) => handleFormChange('nombre', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Tipo</label>
+                <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Tipo</label>
                 <input
                   type="text"
                   required
                   value={formData.tipo}
                   onChange={(e) => handleFormChange('tipo', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
                 />
               </div>
 
               <div className="flex gap-2">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium mb-1">Interés</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Interés</label>
                   <input
                     type="number"
                     required
                     value={formData.interes}
                     step={formData.tipo_interes === 'porcentaje' ? 0.01 : 1}
                     onChange={(e) => handleFormChange('interes', parseFloat(e.target.value))}
-                    className="w-full px-3 py-2 border rounded-md"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
                   />
                 </div>
 
                 <div className="flex-1">
-                  <label className="block text-sm font-medium mb-1">Tipo de Interés</label>
+                  <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Tipo de Interés</label>
                   <select
                     value={formData.tipo_interes}
                     onChange={(e) => handleFormChange('tipo_interes', e.target.value as "porcentaje" | "desembolso")}
-                    className="w-full px-3 py-2 border rounded-md"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
                   >
                     <option value="porcentaje">Porcentaje (%)</option>
                     <option value="desembolso">Desembolso (USD)</option>
@@ -202,16 +213,22 @@ export default function LoanTypesPage() {
               </div>
 
               <div className="flex justify-end gap-2 pt-4">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => { setShowForm(false); setFormData(emptyLoan); }}
-                  className="px-4 py-2 border rounded-md"
+                  className="px-4 py-2"
                 >
                   Cancelar
-                </button>
-                <button type="submit" disabled={saving} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={saving} 
+                  variant="default"
+                  className="px-4 py-2"
+                >
                   {saving ? 'Guardando...' : editingLoan ? 'Actualizar' : 'Crear'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
