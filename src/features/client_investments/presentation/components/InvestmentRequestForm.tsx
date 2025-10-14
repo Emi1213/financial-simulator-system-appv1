@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckCircle, XCircle, AlertCircle, DollarSign, Calendar, Building, FileText, Calculator, TrendingUp } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useClientInvestment, useInversionProduct } from '../../hooks/useClientInvestment';
 import { SolicitudFormData } from '../../types';
 import { DocumentPreview } from '@/features/client_investments/presentation/components/DocumentPreview';
@@ -20,6 +20,7 @@ interface InvestmentRequestFormProps {
 
 export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   
   // Parámetros del simulador
   const inversionId = searchParams.get('id');
@@ -135,6 +136,17 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
       console.log('⚠️ No hay userId disponible o es inválido:', userId);
     }
   }, [userId]);
+
+  // Redirección automática después del éxito
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => {
+        router.push('/client/investments/my-investments');
+      }, 3000); // 3 segundos
+
+      return () => clearTimeout(timer);
+    }
+  }, [success, router]);
 
   // Obtener producto seleccionado
   const selectedProducto = simulatorData.productoId ? 
@@ -1269,15 +1281,35 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
         {/* Botones de navegación y envío para Paso 2 */}
         <div className="flex flex-col gap-4">
           {success && (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 p-4 rounded-lg">
-              <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
-                <CheckCircle className="h-5 w-5" />
-                <span className="font-medium">¡Solicitud enviada exitosamente!</span>
+            <div className="relative overflow-hidden bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-2 border-emerald-200 dark:border-emerald-700 p-6 rounded-xl shadow-lg">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 dark:bg-emerald-800/30 rounded-full -translate-y-16 translate-x-16 opacity-50"></div>
+              <div className="relative z-10">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="flex-shrink-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                    <CheckCircle className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-emerald-800 dark:text-emerald-300">
+                      ¡Excelente! Tu solicitud está en proceso
+                    </h3>
+                    <p className="text-sm text-emerald-700 dark:text-emerald-400 mt-1">
+                      Hemos recibido exitosamente tu solicitud de inversión. Nuestro equipo especializado 
+                      la evaluará y te contactaremos pronto con una respuesta.
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between bg-white dark:bg-gray-800/50 p-3 rounded-lg border border-emerald-100 dark:border-emerald-800">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    Redirigiendo a tus inversiones en 3 segundos...
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                    <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                  </div>
+                </div>
               </div>
-              <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                Su solicitud ha sido registrada y será revisada por nuestro equipo. 
-                Recibirá una notificación del resultado en los próximos días hábiles.
-              </p>
             </div>
           )}
 
