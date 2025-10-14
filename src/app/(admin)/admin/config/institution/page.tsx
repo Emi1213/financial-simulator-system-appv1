@@ -115,6 +115,7 @@ export default function InstitutionConfigPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [message, setMessage] = useState('');
 
   // Cargar datos existentes
@@ -136,6 +137,49 @@ export default function InstitutionConfigPage() {
       console.error('Error cargando datos:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogoUpload = async (file: File) => {
+    if (!file) return;
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      setMessage('Por favor selecciona una imagen válida');
+      return;
+    }
+
+    // Validar tamaño (5MB máximo)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage('La imagen debe ser menor a 5MB');
+      return;
+    }
+
+    try {
+      setUploadingLogo(true);
+      setMessage('');
+
+      const { uploadImageToSupabase, generateUniqueFileName } = await import('@/lib/supabase');
+      
+      // Generar nombre único para el logo
+      const fileName = generateUniqueFileName(
+        formData.nombre || 'institution',
+        'logo',
+        file.name
+      );
+
+      // Subir sin eliminar archivos existentes
+      const publicUrl = await uploadImageToSupabase(file, 'logos', fileName, false);
+      
+      // Actualizar la URL del logo en el formulario
+      handleChange('logo', publicUrl);
+      setMessage('Logo subido exitosamente');
+      
+    } catch (error: any) {
+      console.error('Error uploading logo:', error);
+      setMessage('Error al subir el logo: ' + (error.message || 'Error desconocido'));
+    } finally {
+      setUploadingLogo(false);
     }
   };
 
@@ -266,14 +310,33 @@ export default function InstitutionConfigPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="logo">URL del Logo</Label>
-                  <Input
-                    id="logo"
-                    type="url"
-                    value={formData.logo}
-                    onChange={(e) => handleChange('logo', e.target.value)}
-                    placeholder="https://ejemplo.com/logo.png"
-                  />
+                  <Label htmlFor="logo">Logo de la Institución</Label>
+                  
+                  {/* Botón para subir archivo */}
+                  <div className="relative inline-block">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleLogoUpload(file);
+                        }
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      disabled={uploadingLogo}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploadingLogo}
+                      className="w-full"
+                    >
+                      {uploadingLogo ? 'Subiendo...' : formData.logo ? 'Cambiar Logo' : 'Subir Logo'}
+                    </Button>
+                  </div>
+                  
+                  {/* Preview del logo */}
                   {formData.logo && (
                     <div className="mt-3 p-3 bg-gray-50 rounded-lg">
                       <img 
@@ -284,9 +347,14 @@ export default function InstitutionConfigPage() {
                           (e.target as HTMLImageElement).style.display = 'none';
                         }}
                       />
+                      <p className="text-xs text-gray-500 mt-2">
+                        {formData.logo.split('/').pop()}
+                      </p>
                     </div>
                   )}
-                  <p className="text-sm text-gray-500">URL de la imagen del logo de la institución</p>
+                  <p className="text-sm text-gray-500">
+                    Formatos soportados: JPG, PNG, SVG (máximo 5MB)
+                  </p>
                 </div>
 
                 <div className="space-y-2">

@@ -80,7 +80,7 @@ export function LoginForm({ onSubmit, isLoading }: LoginFormProps) {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 hover:bg-gray-100"
-                  placeholder="Ingresa tu usuario o email"
+                  placeholder="Ingresa tu usuario"
                   disabled={isLoading}
                 />
               </div>

@@ -7,7 +7,7 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Función para generar nombre único de archivo
-export const generateUniqueFileName = (identifier: string, type: 'selfie' | 'cedula-frontal' | 'cedula-reverso' | 'documento-validacion', originalName: string): string => {
+export const generateUniqueFileName = (identifier: string, type: 'selfie' | 'cedula-frontal' | 'cedula-reverso' | 'documento-validacion' | 'logo', originalName: string): string => {
   const timestamp = Date.now();
   const extension = originalName.split('.').pop()?.toLowerCase();
   
@@ -20,7 +20,7 @@ export const generateUniqueFileName = (identifier: string, type: 'selfie' | 'ced
 // Función para subir imagen a Supabase Storage
 export const uploadImageToSupabase = async (
   file: File, 
-  bucketName: 'selfies' | 'cedulas' | 'documents', 
+  bucketName: 'selfies' | 'cedulas' | 'documents' | 'logos', 
   fileName: string,
   deleteExisting: boolean = true
 ): Promise<string> => {
