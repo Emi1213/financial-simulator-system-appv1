@@ -71,17 +71,10 @@ export function MyInvestmentsView({ userId }: MyInvestmentsViewProps) {
           </p>
         </div>
         <div className="flex gap-2 mt-4 sm:mt-0">
-          <Button
-            onClick={fetchSolicitudes}
-            disabled={isLoading}
-            variant="outline"
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Actualizar
-          </Button>
+          
           <Button
             onClick={() => window.location.href = '/client/investments/solicitar'}
-            className="bg-blue-600 hover:bg-blue-700"
+            className=""
           >
             <Plus className="h-4 w-4 mr-2" />
             Nueva Solicitud
@@ -133,13 +126,6 @@ export function MyInvestmentsView({ userId }: MyInvestmentsViewProps) {
                   Comienza tu camino hacia el crecimiento financiero creando tu primera solicitud de inversión
                 </p>
               </div>
-              <Button
-                onClick={() => window.location.href = '/client/investments'}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Crear Primera Solicitud
-              </Button>
             </div>
           </CardContent>
         </Card>
