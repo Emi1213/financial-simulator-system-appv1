@@ -866,10 +866,10 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
                   {completedSteps.includes(step) ? '✓' : step}
                 </div>
                 <div className="ml-3 text-sm">
-                  <div className={`font-medium ${step === currentStep ? 'text-blue-600' : 'text-gray-600'}`}>
+                  <div className={`font-medium ${step === currentStep ? 'text-blue-600' : 'text-gray-100'}`}>
                     {step === 1 ? 'Información y Configuración' : 'Verificación y Documentos'}
                   </div>
-                  <div className="text-gray-500 text-xs">
+                  <div className="text-gray-300 text-xs">
                     {step === 1 ? 'Complete sus datos financieros' : 'Suba documentos y verificación facial'}
                   </div>
                 </div>
@@ -880,7 +880,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
             ))}
           </div>
           <div className="text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-200">
               {currentStep === 1 
                 ? 'Configure su inversión y complete sus datos laborales para continuar' 
                 : 'Suba su documentación y complete la verificación facial para finalizar su solicitud'
@@ -894,8 +894,8 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
       {inversion && (
         <Card className="bg-green-50/10 dark:bg-green-900/20 border-green-200 dark:border-green-800">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
+            <CardTitle className="flex items-center gap-2 text-green-300">
+              <TrendingUp className="h-5 w-5 text-green-300" />
               Formulario de Solicitud para Inversión: {inversion.nombre}
             </CardTitle>
             <CardDescription className="text-base">
@@ -1067,11 +1067,11 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
                 {selectedProducto ? (
                   <Card className="bg-green-50/10 dark:bg-green-900/20 border-green-200 dark:border-green-800 h-fit sticky top-4">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-lg text-green-800 flex items-center gap-2">
+                      <CardTitle className="text-lg text-green-200 flex items-center gap-2">
                         <TrendingUp className="w-5 h-5" />
                         {selectedProducto.nombre}
                       </CardTitle>
-                      <CardDescription className="text-green-700">
+                      <CardDescription className="text-green-400">
                         Detalles del producto seleccionado
                       </CardDescription>
                     </CardHeader>
@@ -1265,7 +1265,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
           <Button
             type="button"
             onClick={nextStep}
-            className="bg-blue-600 hover:bg-blue-700"
+            className=""
           >
             Continuar con Verificación →
           </Button>
