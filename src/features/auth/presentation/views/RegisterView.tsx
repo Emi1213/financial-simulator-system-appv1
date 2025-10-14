@@ -947,39 +947,19 @@ function VerificationStep({ data, setData, documentData, onBack, onSubmit, isLoa
     return publicUrl;
   };
 
-  // Función para convertir File a Base64
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          const base64 = reader.result.split(',')[1];
-          resolve(base64);
-        } else {
-          reject(new Error('Error al convertir archivo a Base64'));
-        }
-      };
-      reader.onerror = error => reject(error);
-    });
-  };
 
-  // Verificación facial usando la API
-  const performFaceVerification = async (cedulaFile: File, selfieFile: File): Promise<{ isMatch: boolean; confidence: number }> => {
+
+  // Verificación facial usando la API con URLs
+  const performFaceVerification = async (cedulaUrl: string, selfieUrl: string): Promise<{ isMatch: boolean; confidence: number }> => {
     try {
-      const [cedulaBase64, selfieBase64] = await Promise.all([
-        fileToBase64(cedulaFile),
-        fileToBase64(selfieFile)
-      ]);
-
       const response = await fetch('/api/face-verification', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          image1: cedulaBase64,
-          image2: selfieBase64
+          cedulaUrl: cedulaUrl,
+          selfieUrl: selfieUrl
         })
       });
 
@@ -989,8 +969,8 @@ function VerificationStep({ data, setData, documentData, onBack, onSubmit, isLoa
 
       const result = await response.json();
       return {
-        isMatch: result.isMatch || result.rawResult?.isIdentical || false,
-        confidence: result.confidence || result.rawResult?.confidence || 0
+        isMatch: result.isMatch || false,
+        confidence: result.confidence || 0
       };
     } catch (error) {
       console.error('Error in face verification:', error);
@@ -1013,10 +993,10 @@ function VerificationStep({ data, setData, documentData, onBack, onSubmit, isLoa
         selfieUri: uploadedUrl
       });
 
-      // Verificar con la cédula frontal
-      if (documentData.cedulaFrontal) {
+      // Verificar con la cédula frontal usando URLs
+      if (documentData.cedulaFrontalUri) {
         setVerifying(true);
-        const verification = await performFaceVerification(documentData.cedulaFrontal, file);
+        const verification = await performFaceVerification(documentData.cedulaFrontalUri, uploadedUrl);
         setVerificationResult(verification);
         
         // Actualizar estado de verificación
@@ -1024,7 +1004,7 @@ function VerificationStep({ data, setData, documentData, onBack, onSubmit, isLoa
           ...data,
           selfie: file,
           selfieUri: uploadedUrl,
-          isVerified: verification.isMatch && verification.confidence > 0.7
+          isVerified: verification.isMatch && verification.confidence > 70
         });
       }
 
