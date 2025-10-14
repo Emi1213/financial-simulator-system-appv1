@@ -479,7 +479,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
         setVerificationConfidence(result.confidence);
         setErrors(prev => ({
           ...prev,
-          verification: `Verificación facial fallida (${Math.round(result.confidence * 100)}% confianza). El selfie no coincide con su perfil.`
+          verification: 'La verificación biométrica no fue exitosa. Por favor, intente nuevamente con una selfie más clara y con buena iluminación.'
         }));
       }
     } catch (error: any) {
@@ -488,7 +488,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
       setVerificationConfidence(0);
       setErrors(prev => ({
         ...prev,
-        verification: `Error en la verificación: ${error.message}`
+        verification: 'Ocurrió un problema durante la verificación biométrica. Por favor, verifique su conexión a internet e intente nuevamente.'
       }));
     }
   };
@@ -651,44 +651,50 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
     switch (faceVerificationStatus) {
       case 'processing':
         return (
-          <div className="flex items-center gap-2 text-blue-600">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-            <span className="text-sm">Verificando identidad...</span>
+          <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700">
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent"></div>
+            <div>
+              <span className="text-sm font-medium text-blue-800 dark:text-blue-300">Procesando verificación biométrica...</span>
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                Comparando rostros con tecnología avanzada Face++
+              </p>
+            </div>
           </div>
         );
       case 'success':
         return (
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-green-600">
-              <CheckCircle className="h-4 w-4" />
-              <span className="text-sm">Verificación exitosa</span>
+          <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-700">
+            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <div>
+              <span className="text-sm font-medium text-green-800 dark:text-green-300">Identidad confirmada con éxito</span>
+              <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                Su rostro coincide con el perfil registrado
+              </p>
             </div>
-            {verificationConfidence > 0 && (
-              <div className="text-xs text-gray-600 ml-6">
-                Confianza: {Math.round(verificationConfidence * 100)}%
-              </div>
-            )}
           </div>
         );
       case 'failed':
         return (
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-red-600">
-              <XCircle className="h-4 w-4" />
-              <span className="text-sm">Verificación fallida</span>
+          <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/30 rounded-lg border border-red-200 dark:border-red-700">
+            <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+            <div>
+              <span className="text-sm font-medium text-red-800 dark:text-red-300">Verificación no exitosa</span>
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                No se pudo confirmar la coincidencia facial. Intente nuevamente con mejor iluminación
+              </p>
             </div>
-            {verificationConfidence > 0 && (
-              <div className="text-xs text-gray-600 ml-6">
-                Confianza: {Math.round(verificationConfidence * 100)}%
-              </div>
-            )}
           </div>
         );
       default:
         return (
-          <div className="flex items-center gap-2 text-gray-500">
-            <AlertCircle className="h-4 w-4" />
-            <span className="text-sm">Pendiente de verificación</span>
+          <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-700">
+            <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <div>
+              <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Esperando verificación</span>
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                Suba una selfie clara para verificar su identidad
+              </p>
+            </div>
           </div>
         );
     }
@@ -1222,11 +1228,39 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
             />
 
             {/* Estado de verificación */}
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-              <h4 className="font-medium mb-2 text-gray-900 dark:text-gray-100">Estado de Verificación de Identidad</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Verificación Biométrica</span>
+                </div>
+                <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  faceVerificationStatus === 'success' 
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    : faceVerificationStatus === 'processing'
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                      : faceVerificationStatus === 'failed'
+                        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                        : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                }`}>
+                  {faceVerificationStatus === 'success' 
+                    ? 'Verificado ✓' 
+                    : faceVerificationStatus === 'processing'
+                      ? 'Procesando...'
+                      : faceVerificationStatus === 'failed'
+                        ? 'No verificado'
+                        : 'Pendiente'
+                  }
+                </div>
+              </div>
+              
               {renderVerificationStatus()}
+              
               {errors.verification && (
-                <p className="text-sm text-red-500 mt-2">{errors.verification}</p>
+                <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                  <XCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-red-700 dark:text-red-300">{errors.verification}</p>
+                </div>
               )}
             </div>
           </CardContent>
