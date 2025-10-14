@@ -283,54 +283,17 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
     }
   };
 
-  // Convertir File a Base64
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          const base64 = reader.result.split(',')[1];
-          resolve(base64);
-        } else {
-          reject(new Error('Error al convertir archivo a Base64'));
-        }
-      };
-      reader.onerror = error => reject(error);
-    });
-  };
-
-  // Convertir URI a Base64
-  const uriToBase64 = async (uri: string): Promise<string> => {
+  // Verificación facial usando la nueva API con URLs (Face++)
+  const performFaceVerificationWithProfile = async (profileSelfieUrl: string, newSelfieUrl: string): Promise<{ isMatch: boolean; confidence: number }> => {
     try {
-      const response = await fetch(uri);
-      if (!response.ok) {
-        throw new Error(`Error al descargar imagen: ${response.status}`);
-      }
-      const arrayBuffer = await response.arrayBuffer();
-      return Buffer.from(arrayBuffer).toString('base64');
-    } catch (error) {
-      console.error('Error convirtiendo URI a Base64:', error);
-      throw error;
-    }
-  };
-
-  // Verificación facial con selfie del perfil
-  const performFaceVerificationWithProfile = async (newSelfieFile: File): Promise<{ isMatch: boolean; confidence: number }> => {
-    try {
-      const [newSelfieBase64, profileSelfieBase64] = await Promise.all([
-        fileToBase64(newSelfieFile),
-        uriToBase64(profileSelfieUri)
-      ]);
-
       const response = await fetch('/api/face-verification', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          image1: profileSelfieBase64,
-          image2: newSelfieBase64
+          cedulaUrl: profileSelfieUrl,
+          selfieUrl: newSelfieUrl
         }),
       });
 
@@ -350,39 +313,23 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
     }
   };
 
-  // Verificación facial (mantenida para compatibilidad)
-  const performFaceVerification = async (documentFile: File, selfieFile: File): Promise<{ isMatch: boolean; confidence: number }> => {
+  // Función para subir selfie a Supabase
+  const uploadSelfie = async (file: File): Promise<string> => {
+    const { uploadImageToSupabase, generateUniqueFileName } = await import('@/lib/supabase');
+    
+    // Generar nombre único
+    const fileName = generateUniqueFileName(
+      userId.toString(), 
+      'selfie',
+      file.name
+    );
+
     try {
-      const [documentBase64, selfieBase64] = await Promise.all([
-        fileToBase64(documentFile),
-        fileToBase64(selfieFile)
-      ]);
-
-      const response = await fetch('/api/face-verification', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image1: documentBase64,
-          image2: selfieBase64
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error en la verificación facial');
-      }
-
-      return {
-        isMatch: data.isMatch || false,
-        confidence: data.confidence || 0
-      };
-
+      const publicUrl = await uploadImageToSupabase(file, 'selfies', fileName);
+      return publicUrl;
     } catch (error) {
-      console.error('Error en verificación facial:', error);
-      throw error;
+      console.error('Error subiendo selfie:', error);
+      throw new Error('Error al subir la selfie. Intente nuevamente.');
     }
   };
 
@@ -421,10 +368,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
         return newErrors;
       });
 
-      // Verificar si ahora tenemos ambos archivos para verificación
-      if (selfie && file.type.startsWith('image/')) {
-        await handleFaceVerification(file, selfie);
-      }
+      // Note: La verificación facial ahora se realiza solo con la selfie del perfil del usuario
       
     } catch (error) {
       if (documentoPreview) {
@@ -514,7 +458,11 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
     setVerificationConfidence(0);
     
     try {
-      const result = await performFaceVerificationWithProfile(newSelfieFile);
+      // Subir el nuevo selfie a Supabase
+      const newSelfieUrl = await uploadSelfie(newSelfieFile);
+      
+      // Realizar verificación usando URLs
+      const result = await performFaceVerificationWithProfile(profileSelfieUri, newSelfieUrl);
       
       if (result.isMatch) {
         setFaceVerificationStatus('success');
@@ -545,47 +493,7 @@ export function InvestmentRequestForm({ userId }: InvestmentRequestFormProps) {
     }
   };
 
-  // Manejar verificación facial (mantenida para compatibilidad)
-  const handleFaceVerification = async (documentFile: File, selfieFile: File) => {
-    if (!documentFile || !selfieFile || !documentFile.type.startsWith('image/')) {
-      return;
-    }
-    
-    setFaceVerificationStatus('processing');
-    setVerificationConfidence(0);
-    
-    try {
-      const result = await performFaceVerification(documentFile, selfieFile);
-      
-      if (result.isMatch) {
-        setFaceVerificationStatus('success');
-        setIsVerified(true);
-        setVerificationConfidence(result.confidence);
-        setErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors.verification;
-          return newErrors;
-        });
-      } else {
-        setFaceVerificationStatus('failed');
-        setIsVerified(false);
-        setVerificationConfidence(result.confidence);
-        setErrors(prev => ({
-          ...prev,
-          verification: `La verificación facial no fue exitosa (confianza: ${Math.round(result.confidence * 100)}%). Intenta con una imagen más clara.`
-        }));
-      }
-    } catch (error: any) {
-      console.error('Error en verificación facial:', error);
-      setFaceVerificationStatus('failed');
-      setIsVerified(false);
-      setVerificationConfidence(0);
-      setErrors(prev => ({
-        ...prev,
-        verification: `Error en la verificación facial: ${error.message}`
-      }));
-    }
-  };
+
 
   // Manejar cambios en el formulario
   const handleInputChange = (field: string, value: string) => {
