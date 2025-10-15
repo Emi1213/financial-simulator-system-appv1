@@ -3,13 +3,13 @@ import { Pool } from 'pg';
 
 // Verificar que las variables de entorno estén configuradas
 const requiredEnvVars = {
-  DB_HOST: process.env.DB_HOST,
-  DB_USER: process.env.DB_USER,
-  DB_PASSWORD: process.env.DB_PASSWORD,
-  DB_NAME: process.env.DB_NAME
+  DB_HOST: process.env.POSTGRES_HOST,
+  DB_USER: process.env.POSTGRES_USER,
+  DB_PASSWORD: process.env.POSTGRES_PASSWORD,
+  DB_NAME: process.env.POSTGRES_DATABASE
 };
 
-// Validar variables de entorno
+// Vali
 for (const [key, value] of Object.entries(requiredEnvVars)) {
   if (!value) {
     throw new Error(`Missing required environment variable: ${key}`);
@@ -17,11 +17,11 @@ for (const [key, value] of Object.entries(requiredEnvVars)) {
 }
 
 const pool = new Pool({
-  host: process.env.DB_HOST,
+  host: process.env.POSTGRES_HOST,
   port: parseInt(process.env.DB_PORT || '5432'),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.POSTGRES_DATABASE,
   ssl: process.env.NODE_ENV === 'production' 
     ? { rejectUnauthorized: false } 
     : false,
