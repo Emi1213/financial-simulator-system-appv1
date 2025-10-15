@@ -50,7 +50,7 @@ export function AuthButtons({
 
   return (
     <div className="flex items-center gap-3">
-      <Button size="sm" asChild>
+      <Button size="sm" >
         <Link href="/login">Iniciar Sesión</Link>
       </Button>
     </div>

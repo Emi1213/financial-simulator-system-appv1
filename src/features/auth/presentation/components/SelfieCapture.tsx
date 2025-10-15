@@ -21,15 +21,31 @@ export function SelfieCapture({ onCapture, onCancel, isUploading }: SelfieCaptur
   useEffect(() => {
     const enableVideoStream = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
+        // Configuración optimizada para Face++ API
+        const constraints = {
           video: { 
             facingMode: 'user',
-            width: { ideal: 640 },
-            height: { ideal: 480 }
+            // Usar resolución moderada para evitar imágenes demasiado grandes
+            width: { 
+              ideal: 640,
+              min: 320,
+              max: 800
+            },
+            height: { 
+              ideal: 480,
+              min: 240,
+              max: 600
+            },
+            // Optimizar para captura de rostros
+            frameRate: { ideal: 30, max: 30 }
           } 
-        });
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         setMediaStream(stream);
         setError('');
+        
+        console.log('Camera initialized with constraints:', constraints);
       } catch (error) {
         console.error('Error accessing webcam:', error);
         setError('No se pudo acceder a la cámara. Verifica los permisos.');
@@ -65,23 +81,73 @@ export function SelfieCapture({ onCapture, onCancel, isUploading }: SelfieCaptur
       const video = videoRef.current;
       const canvas = canvasRef.current;
       
-      // Configurar el canvas con las dimensiones del video
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      // Definir dimensiones máximas optimizadas para Face++ API
+      const MAX_WIDTH = 800;
+      const MAX_HEIGHT = 600;
+      const MIN_SIZE = 48; // Tamaño mínimo requerido por Face++
+      
+      let { videoWidth, videoHeight } = video;
+      
+      // Calcular nuevas dimensiones manteniendo aspect ratio
+      if (videoWidth > MAX_WIDTH || videoHeight > MAX_HEIGHT) {
+        const aspectRatio = videoWidth / videoHeight;
+        
+        if (videoWidth > videoHeight) {
+          videoWidth = MAX_WIDTH;
+          videoHeight = MAX_WIDTH / aspectRatio;
+        } else {
+          videoHeight = MAX_HEIGHT;
+          videoWidth = MAX_HEIGHT * aspectRatio;
+        }
+      }
+      
+      // Asegurar que no sean menores al tamaño mínimo
+      if (videoWidth < MIN_SIZE) videoWidth = MIN_SIZE;
+      if (videoHeight < MIN_SIZE) videoHeight = MIN_SIZE;
+      
+      // Configurar el canvas con las dimensiones optimizadas
+      canvas.width = videoWidth;
+      canvas.height = videoHeight;
       
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        // Dibujar la imagen del video en el canvas
-        ctx.drawImage(video, 0, 0);
+        // Mejorar la calidad del redimensionamiento
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
         
-        // Convertir a blob y crear archivo
+        // Dibujar la imagen del video redimensionada en el canvas
+        ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+        
+        // Convertir a blob con calidad optimizada (0.8 para balance entre calidad y tamaño)
         canvas.toBlob((blob) => {
           if (blob) {
-            const timestamp = Date.now();
-            const file = new File([blob], `selfie_${timestamp}.jpg`, { type: 'image/jpeg' });
-            onCapture(file);
+            // Verificar el tamaño del archivo (Face++ tiene límite de ~2MB)
+            const maxFileSize = 1.5 * 1024 * 1024; // 1.5MB como límite seguro
+            
+            console.log('Selfie captured:', {
+              originalSize: `${video.videoWidth}x${video.videoHeight}`,
+              optimizedSize: `${videoWidth}x${videoHeight}`,
+              fileSize: `${(blob.size / 1024).toFixed(1)}KB`,
+              fileSizeMB: `${(blob.size / (1024 * 1024)).toFixed(2)}MB`
+            });
+            
+            if (blob.size > maxFileSize) {
+              console.warn('Image still too large, attempting further compression...');
+              // Si aún es muy grande, reducir más la calidad
+              canvas.toBlob((compressedBlob) => {
+                if (compressedBlob) {
+                  const timestamp = Date.now();
+                  const file = new File([compressedBlob], `selfie_${timestamp}.jpg`, { type: 'image/jpeg' });
+                  onCapture(file);
+                }
+              }, 'image/jpeg', 0.6);
+            } else {
+              const timestamp = Date.now();
+              const file = new File([blob], `selfie_${timestamp}.jpg`, { type: 'image/jpeg' });
+              onCapture(file);
+            }
           }
-        }, 'image/jpeg', 0.9);
+        }, 'image/jpeg', 0.8);
       }
     }
   };
@@ -96,13 +162,25 @@ export function SelfieCapture({ onCapture, onCancel, isUploading }: SelfieCaptur
     }
     
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      // Usar la misma configuración optimizada
+      const constraints = {
         video: { 
           facingMode: 'user',
-          width: { ideal: 640 },
-          height: { ideal: 480 }
+          width: { 
+            ideal: 640,
+            min: 320,
+            max: 800
+          },
+          height: { 
+            ideal: 480,
+            min: 240,
+            max: 600
+          },
+          frameRate: { ideal: 30, max: 30 }
         } 
-      });
+      };
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       setMediaStream(stream);
     } catch (error) {
       console.error('Error accessing webcam:', error);

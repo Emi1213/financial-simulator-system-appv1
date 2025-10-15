@@ -931,19 +931,90 @@ function VerificationStep({ data, setData, documentData, onBack, onSubmit, isLoa
   } | null>(null);
   const [error, setError] = useState('');
 
+  // Función para optimizar imagen antes de subirla
+  const optimizeImageFile = async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Configurar dimensiones máximas para Face++ API
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 600;
+        const MAX_FILE_SIZE = 1.5 * 1024 * 1024; // 1.5MB
+        
+        let { width, height } = img;
+        
+        // Redimensionar si es necesario
+        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+          const aspectRatio = width / height;
+          
+          if (width > height) {
+            width = MAX_WIDTH;
+            height = MAX_WIDTH / aspectRatio;
+          } else {
+            height = MAX_HEIGHT;
+            width = MAX_HEIGHT * aspectRatio;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Optimizar calidad de redimensionamiento
+        ctx!.imageSmoothingEnabled = true;
+        ctx!.imageSmoothingQuality = 'high';
+        ctx!.drawImage(img, 0, 0, width, height);
+        
+        // Función para crear archivo con calidad específica
+        const createOptimizedFile = (quality: number) => {
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const optimizedFile = new File([blob], file.name, { type: 'image/jpeg' });
+              
+              console.log('Image optimization result:', {
+                originalSize: `${img.width}x${img.height}`,
+                optimizedSize: `${width}x${height}`,
+                originalFileSize: `${(file.size / 1024).toFixed(1)}KB`,
+                optimizedFileSize: `${(blob.size / 1024).toFixed(1)}KB`,
+                quality: quality
+              });
+              
+              // Si aún es muy grande, reducir más la calidad
+              if (blob.size > MAX_FILE_SIZE && quality > 0.3) {
+                createOptimizedFile(quality - 0.2);
+              } else {
+                resolve(optimizedFile);
+              }
+            }
+          }, 'image/jpeg', quality);
+        };
+        
+        // Comenzar con calidad alta y reducir si es necesario
+        createOptimizedFile(0.8);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   // Función para subir selfie
   const uploadSelfie = async (file: File): Promise<string> => {
     const { uploadImageToSupabase, generateUniqueFileName } = await import('@/lib/supabase');
     
+    // Optimizar imagen antes de subir
+    const optimizedFile = await optimizeImageFile(file);
+    
     const fileName = generateUniqueFileName(
       data.cedula || 'temp',
       'selfie',
-      file.name
+      optimizedFile.name
     );
 
     const bucketName = 'selfies';
     // No eliminar selfies existentes (deleteExisting: false) porque son usuarios anónimos diferentes
-    const publicUrl = await uploadImageToSupabase(file, bucketName, fileName, false);
+    const publicUrl = await uploadImageToSupabase(optimizedFile, bucketName, fileName, false);
     return publicUrl;
   };
 
