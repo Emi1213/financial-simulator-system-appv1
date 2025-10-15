@@ -33,7 +33,7 @@ export function MobileMenu({
 
       {/* Sidebar Menu con animación de slide desde la derecha */}
       <div
-        className={`fixed top-0 right-0 w-80 h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 z-50 shadow-2xl overflow-y-auto transform transition-transform duration-300 ease-in-out border-l border-slate-700 ${
+        className={`fixed top-0 right-0 w-80 max-w-[85vw] h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 z-50 shadow-2xl transform transition-transform duration-300 ease-in-out border-l border-slate-700 flex flex-col ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         style={{
@@ -41,11 +41,8 @@ export function MobileMenu({
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-700">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-700 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">M</span>
-            </div>
             <h2 className="text-xl font-bold text-white">Navegación</h2>
           </div>
           <button
@@ -67,10 +64,11 @@ export function MobileMenu({
           </button>
         </div>
 
-        {/* Menu Items */}
-        <nav className="p-4 space-y-2">
-          {menuItems.map((item) => (
-            <div key={item.label} className="mb-1">
+        {/* Menu Items - Contenedor scrolleable */}
+        <nav className="flex-1 overflow-y-auto">
+          <div className="p-3 sm:p-4 space-y-1 pb-6">
+            {menuItems.map((item) => (
+              <div key={item.label} className="mb-1">
               {item.subItems ? (
                 <div>
                   <button
@@ -146,16 +144,13 @@ export function MobileMenu({
                   </svg>
                 </Link>
               )}
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </nav>
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700 bg-slate-900/50">
-          <p className="text-slate-400 text-xs text-center">
-            Sistema Financiero v2.0
-          </p>
-        </div>
+        
       </div>
     </>
   );
