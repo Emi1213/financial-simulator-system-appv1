@@ -343,12 +343,12 @@ export const exportToPDF = async (
       
       let footerY = yPosition + 14;
       if (institution.direccion) {
-        addCardText(`📍 ${institution.direccion}`, margin + 8, footerY, 8, false, '#6b7280');
+        addCardText(`${institution.direccion}`, margin + 8, footerY, 8, false, '#6b7280');
         footerY += 4;
       }
       if (institution.telefono && institution.correo) {
-        addCardText(`📞 ${institution.telefono}`, margin + 8, footerY, 8, false, '#6b7280');
-        addCardText(`✉️ ${institution.correo}`, margin + (cardWidth * 0.6), footerY, 8, false, '#6b7280');
+        addCardText(`${institution.telefono}`, margin + 8, footerY, 8, false, '#6b7280');
+        addCardText(`${institution.correo}`, margin + (cardWidth * 0.6), footerY, 8, false, '#6b7280');
       }
       
       yPosition += 25;
