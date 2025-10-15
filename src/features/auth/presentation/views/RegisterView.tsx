@@ -659,6 +659,87 @@ function DocumentUploadStep({ data, setData, personalData, onNext, onBack, showT
   const [uploading, setUploading] = useState({ frontal: false, reverso: false });
   const [previews, setPreviews] = useState({ frontal: '', reverso: '' });
 
+  // Función para optimizar imagen de cédula antes de subirla
+  const optimizeCedulaImage = async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Configurar dimensiones máximas para Face++ API y cédulas
+        const MAX_WIDTH = 1200; // Un poco más grande para cédulas para man tener legibilidad
+        const MAX_HEIGHT = 800;
+        const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB para cédulas (un poco más permisivo)
+        
+        let { width, height } = img;
+        
+        // Redimensionar si es necesario manteniendo aspect ratio
+        if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+          const aspectRatio = width / height;
+          
+          if (width > height) {
+            width = MAX_WIDTH;
+            height = MAX_WIDTH / aspectRatio;
+          } else {
+            height = MAX_HEIGHT;
+            width = MAX_HEIGHT * aspectRatio;
+          }
+        }
+        
+        // Asegurar dimensiones mínimas para legibilidad
+        const MIN_WIDTH = 400;
+        const MIN_HEIGHT = 250;
+        if (width < MIN_WIDTH) {
+          width = MIN_WIDTH;
+          height = MIN_WIDTH / (img.width / img.height);
+        }
+        if (height < MIN_HEIGHT) {
+          height = MIN_HEIGHT;
+          width = MIN_HEIGHT * (img.width / img.height);
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Optimizar calidad de redimensionamiento para documentos
+        ctx!.imageSmoothingEnabled = true;
+        ctx!.imageSmoothingQuality = 'high';
+        ctx!.drawImage(img, 0, 0, width, height);
+        
+        // Función para crear archivo con calidad específica
+        const createOptimizedFile = (quality: number) => {
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const optimizedFile = new File([blob], file.name, { type: 'image/jpeg' });
+              
+              console.log('Cedula image optimization result:', {
+                originalSize: `${img.width}x${img.height}`,
+                optimizedSize: `${width}x${height}`,
+                originalFileSize: `${(file.size / 1024).toFixed(1)}KB`,
+                optimizedFileSize: `${(blob.size / 1024).toFixed(1)}KB`,
+                fileSizeMB: `${(blob.size / (1024 * 1024)).toFixed(2)}MB`,
+                quality: quality
+              });
+              
+              // Si aún es muy grande, reducir más la calidad (pero no menos de 0.4 para mantener legibilidad)
+              if (blob.size > MAX_FILE_SIZE && quality > 0.4) {
+                createOptimizedFile(Math.max(0.4, quality - 0.15));
+              } else {
+                resolve(optimizedFile);
+              }
+            }
+          }, 'image/jpeg', quality);
+        };
+        
+        // Comenzar con calidad alta para documentos (0.9 para mejor legibilidad)
+        createOptimizedFile(0.9);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   // Función para subir imagen a Supabase (reutilizando la lógica existente)
   const uploadImage = async (file: File, type: 'frontal' | 'reverso'): Promise<string> => {
     const { uploadImageToSupabase, generateUniqueFileName } = await import('@/lib/supabase');
@@ -667,14 +748,17 @@ function DocumentUploadStep({ data, setData, personalData, onNext, onBack, showT
       throw new Error('Debe completar la información personal primero');
     }
 
+    // Optimizar imagen antes de subir
+    const optimizedFile = await optimizeCedulaImage(file);
+
     const fileName = generateUniqueFileName(
       personalData.cedula, 
       type === 'frontal' ? 'cedula-frontal' : 'cedula-reverso',
-      file.name
+      optimizedFile.name
     );
 
     const bucketName = 'cedulas';
-    const publicUrl = await uploadImageToSupabase(file, bucketName, fileName);
+    const publicUrl = await uploadImageToSupabase(optimizedFile, bucketName, fileName);
     return publicUrl;
   };
 
@@ -683,25 +767,35 @@ function DocumentUploadStep({ data, setData, personalData, onNext, onBack, showT
 
     // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
-      setErrors({ ...errors, [type]: 'Por favor selecciona una imagen válida' });
+      setErrors({ ...errors, [type]: 'Por favor selecciona una imagen válida (JPG, PNG, WEBP)' });
       return;
     }
 
-    // Validar tamaño (5MB máximo)
-    if (file.size > 5 * 1024 * 1024) {
-      setErrors({ ...errors, [type]: 'La imagen debe ser menor a 5MB' });
+    // Validar tamaño inicial (10MB máximo antes de optimización)
+    if (file.size > 10 * 1024 * 1024) {
+      setErrors({ ...errors, [type]: 'La imagen es demasiado grande. Máximo 10MB' });
       return;
+    }
+
+    // Mostrar advertencia si la imagen es muy grande
+    if (file.size > 5 * 1024 * 1024) {
+      console.log(`Large image detected (${(file.size / (1024 * 1024)).toFixed(2)}MB), will be optimized automatically`);
     }
 
     try {
       setUploading(prev => ({ ...prev, [type]: true }));
       setErrors(prev => ({ ...prev, [type]: '' }));
 
+      // Mostrar notificación si la imagen necesita optimización
+      if (file.size > 2 * 1024 * 1024) { // 2MB
+        showToast('success', `Optimizando imagen de ${type}... Esto puede tomar unos segundos.`);
+      }
+
       // Crear preview
       const previewUrl = URL.createObjectURL(file);
       setPreviews(prev => ({ ...prev, [type]: previewUrl }));
 
-      // Subir archivo
+      // Subir archivo (ahora incluye optimización automática)
       const uploadedUrl = await uploadImage(file, type);
       
       // Actualizar datos
@@ -872,6 +966,7 @@ function DocumentUploadStep({ data, setData, personalData, onNext, onBack, showT
               <li>• La cédula debe estar completamente visible</li>
               <li>• Evita sombras y reflejos</li>
               <li>• Tamaño máximo: 5MB por imagen</li>
+              <li>• Las imágenes se optimizan automáticamente</li>
             </ul>
           </div>
         </div>
