@@ -73,8 +73,8 @@ export async function POST(request: Request) {
 
     await query(
       `UPDATE solicitud_inversion
-       SET estado = ?, observacion_admin = ?
-       WHERE id_solicitud = ?`,
+       SET estado = $1, observacion_admin = $2
+       WHERE id_solicitud = $3`,
       [nuevoEstado, observacion || "", idSolicitud]
     );
 

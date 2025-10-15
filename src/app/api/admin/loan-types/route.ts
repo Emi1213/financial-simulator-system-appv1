@@ -121,7 +121,7 @@ export async function POST(request: Request) {
     const sqlCredito = `
       INSERT INTO creditostabla 
         (nombre, descripcion, tipo, interes, plazo_min, plazo_max, informacion, estado)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     `;
 
     const result = (await query(sqlCredito, [
@@ -146,7 +146,7 @@ export async function POST(request: Request) {
         if (id_indirecto != null) {
           // Usar INSERT IGNORE para evitar errores de duplicados
           await query(
-            "INSERT IGNORE INTO credito_indirecto (id_credito, id_indirecto) VALUES (?, ?)",
+            "INSERT IGNORE INTO credito_indirecto (id_credito, id_indirecto) VALUES ($1, $2)",
             [id_credito, id_indirecto]
           );
         }
@@ -184,9 +184,9 @@ export async function PUT(request: Request) {
     // Actualizar información principal
     const sql = `
       UPDATE creditostabla SET 
-        nombre = ?, descripcion = ?, tipo = ?, interes = ?, 
-        plazo_min = ?, plazo_max = ?, informacion = ?, estado = ?
-      WHERE id_credito = ?
+        nombre = $1, descripcion = $2, tipo = $3, interes = $4, 
+        plazo_min = $5, plazo_max = $6, informacion = $7, estado = $8
+      WHERE id_credito = $9
     `;
 
     await query(sql, [
@@ -203,14 +203,14 @@ export async function PUT(request: Request) {
 
     // Actualizar cobros indirectos solo si el array está definido
     if (Array.isArray(data.cobros_indirectos)) {
-      await query("DELETE FROM credito_indirecto WHERE id_credito = ?", [
+      await query("DELETE FROM credito_indirecto WHERE id_credito = $1", [
         data.id_credito,
       ]);
       for (const id_indirecto of data.cobros_indirectos) {
         if (id_indirecto != null) {
           // Usar INSERT IGNORE para evitar errores de duplicados
           await query(
-            "INSERT IGNORE INTO credito_indirecto (id_credito, id_indirecto) VALUES (?, ?)",
+            "INSERT IGNORE INTO credito_indirecto (id_credito, id_indirecto) VALUES ($1, $2)",
             [data.id_credito, id_indirecto]
           );
         }
@@ -240,10 +240,10 @@ export async function DELETE(request: Request) {
         { status: 400 }
       );
 
-    await query("DELETE FROM credito_indirecto WHERE id_credito = ?", [
+    await query("DELETE FROM credito_indirecto WHERE id_credito = $1", [
       id_credito,
     ]);
-    await query("DELETE FROM creditostabla WHERE id_credito = ?", [id_credito]);
+    await query("DELETE FROM creditostabla WHERE id_credito = $1", [id_credito]);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
