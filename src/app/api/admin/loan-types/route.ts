@@ -60,7 +60,7 @@ export async function GET() {
             plazo_min: row.plazo_min,
             plazo_max: row.plazo_max,
             informacion: row.informacion,
-            estado: row.estado === 1,
+            estado: Boolean(row.estado), // El campo ya es boolean en PostgreSQL
             cobros_indirectos: [],
           };
         }
@@ -122,20 +122,21 @@ export async function POST(request: Request) {
       INSERT INTO creditostabla 
         (nombre, descripcion, tipo, interes, plazo_min, plazo_max, informacion, estado)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id_credito
     `;
 
     const result = (await query(sqlCredito, [
       data.nombre,
       data.descripcion || "",
       data.tipo,
-      data.interes,
-      data.plazo_min || 1,
-      data.plazo_max || 12,
+      Number(data.interes), // Asegurar que sea número
+      Number(data.plazo_min || 1), // Asegurar que sea número
+      Number(data.plazo_max || 12), // Asegurar que sea número
       data.informacion || "",
-      data.estado ? 1 : 0,
+      Boolean(data.estado === 1 || data.estado === true), // Convertir a boolean para PostgreSQL
     ])) as any;
 
-    const id_credito = result.insertId;
+    const id_credito = result.rows?.[0]?.id_credito || result[0]?.id_credito;
 
     // Insertar cobros indirectos solo si hay IDs válidos
     if (
@@ -144,11 +145,18 @@ export async function POST(request: Request) {
     ) {
       for (const id_indirecto of data.cobros_indirectos) {
         if (id_indirecto != null) {
-          // Usar INSERT IGNORE para evitar errores de duplicados
-          await query(
-            "INSERT IGNORE INTO credito_indirecto (id_credito, id_indirecto) VALUES ($1, $2)",
-            [id_credito, id_indirecto]
-          );
+          // Insertar cobros indirectos (si ya existe, no hay problema)
+          try {
+            await query(
+              "INSERT INTO credito_indirecto (id_credito, id_indirecto) VALUES ($1, $2)",
+              [id_credito, id_indirecto]
+            );
+          } catch (insertError: any) {
+            // Si ya existe la relación, continuar sin error
+            if (!insertError.message.includes('duplicate key')) {
+              throw insertError;
+            }
+          }
         }
       }
     }
@@ -193,12 +201,12 @@ export async function PUT(request: Request) {
       data.nombre,
       data.descripcion || "",
       data.tipo,
-      data.interes,
-      data.plazo_min || 1,
-      data.plazo_max || 12,
+      Number(data.interes), // Asegurar que sea número
+      Number(data.plazo_min || 1), // Asegurar que sea número
+      Number(data.plazo_max || 12), // Asegurar que sea número
       data.informacion || "",
-      data.estado ? 1 : 0,
-      data.id_credito,
+      Boolean(data.estado === 1 || data.estado === true), // Convertir a boolean para PostgreSQL
+      Number(data.id_credito), // Asegurar que el ID sea número
     ]);
 
     // Actualizar cobros indirectos solo si el array está definido
@@ -208,11 +216,18 @@ export async function PUT(request: Request) {
       ]);
       for (const id_indirecto of data.cobros_indirectos) {
         if (id_indirecto != null) {
-          // Usar INSERT IGNORE para evitar errores de duplicados
-          await query(
-            "INSERT IGNORE INTO credito_indirecto (id_credito, id_indirecto) VALUES ($1, $2)",
-            [data.id_credito, id_indirecto]
-          );
+          // Insertar cobros indirectos (si ya existe, no hay problema)
+          try {
+            await query(
+              "INSERT INTO credito_indirecto (id_credito, id_indirecto) VALUES ($1, $2)",
+              [data.id_credito, id_indirecto]
+            );
+          } catch (insertError: any) {
+            // Si ya existe la relación, continuar sin error
+            if (!insertError.message.includes('duplicate key')) {
+              throw insertError;
+            }
+          }
         }
       }
     }

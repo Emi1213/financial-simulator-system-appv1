@@ -77,7 +77,8 @@ export const exportInvestmentToPDF = async (
   calculation: InvestmentCalculation,
   producto: IProductoInversion,
   monto: number,
-  plazo: number
+  plazo: number,
+  clienteName?: string
 ) => {
   try {
     const institution = await getInstitutionData();
@@ -334,13 +335,17 @@ export const exportInvestmentToPDF = async (
     }
     
     // Timestamp final
-    addCardText(`Documento generado: ${new Date().toLocaleDateString('es-ES', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })}`, pageWidth / 2, yPosition + 5, 7, false, '#6b7280', 'center');
+    const timestampText = clienteName 
+      ? `Documento emitido por ${nombreEmpresa} para el cliente ${clienteName}` 
+      : `Documento generado el ${new Date().toLocaleDateString('es-ES', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`;
+    
+    addCardText(timestampText, pageWidth / 2, yPosition + 5, 7, false, '#6b7280', 'center');
 
     addWatermarkToAllPages();
 
@@ -360,7 +365,8 @@ export const exportInvestmentToExcel = async (
   calculation: InvestmentCalculation,
   producto: IProductoInversion,
   monto: number,
-  plazo: number
+  plazo: number,
+  clienteName?: string
 ) => {
   try {
     const institution = await getInstitutionData();
@@ -404,13 +410,17 @@ export const exportInvestmentToExcel = async (
       if (institution.correo) resumenData.push(['Correo Electrónico:', institution.correo]);
     }
     resumenData.push(['']);
-    resumenData.push(['Documento generado el:', new Date().toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })]);
+    const timestampText = clienteName 
+      ? `Documento emitido por ${nombreEmpresa} para el cliente ${clienteName}` 
+      : `Documento generado el ${new Date().toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })}`;
+    
+    resumenData.push([timestampText]);
 
     const wsResumen = utils.aoa_to_sheet(resumenData);
     wsResumen['!cols'] = [{ width: 25 }, { width: 40 }];

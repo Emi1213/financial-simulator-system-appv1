@@ -82,12 +82,21 @@ export default function LoanTypesPage() {
       }
 
       const data: any[] = await res.json();
+      console.log('📊 Datos RAW del servidor:', data);
       
-      // ✅ CORRECCIÓN: Normalizar consistentemente el estado
-      const normalizedData = data.map(loan => ({
-        ...loan,
-        estado: Boolean(loan.estado) // Asegurar boolean
-      }));
+      // ✅ CORRECCIÓN: Normalizar consistentemente todos los campos
+      const normalizedData = data.map(loan => {
+        const normalized = {
+          ...loan,
+          id_credito: Number(loan.id_credito),
+          interes: Number(loan.interes),
+          plazo_min: Number(loan.plazo_min),
+          plazo_max: Number(loan.plazo_max),
+          estado: Boolean(loan.estado) // Ya debería ser boolean
+        };
+        console.log('📊 Loan normalizado:', normalized);
+        return normalized;
+      });
 
       setLoanTypes(normalizedData);
     } catch (error: any) {
@@ -122,13 +131,23 @@ export default function LoanTypesPage() {
       const url = '/api/admin/loan-types';
       const method = editingLoan ? 'PUT' : 'POST';
 
-      // ✅ CORRECCIÓN: Preparar datos para enviar - convertir estado boolean a número
+      // ✅ CORRECCIÓN: Preparar datos para enviar - asegurar tipos correctos
       const payload = {
         ...formData,
-        estado: formData.estado ? 1 : 0, // Convertir boolean a número para el backend
+        // Asegurar que los números sean números, no strings
+        interes: Number(formData.interes),
+        plazo_min: Number(formData.plazo_min),
+        plazo_max: Number(formData.plazo_max),
+        // Mantener estado como boolean para PostgreSQL
+        estado: Boolean(formData.estado),
         cobros_indirectos: selectedIndirects,
-        ...(editingLoan && { id_credito: editingLoan.id_credito })
+        // Para PUT, asegurar que siempre se incluya el id_credito
+        ...(editingLoan && { id_credito: Number(formData.id_credito || editingLoan.id_credito) })
       };
+
+      console.log('📤 Enviando payload:', payload);
+      console.log('📤 Método:', method);
+      console.log('📤 Editando loan:', editingLoan);
 
       const res = await fetch(url, {
         method,
@@ -140,11 +159,14 @@ export default function LoanTypesPage() {
       });
 
       const result = await res.json();
+      console.log('📥 Respuesta del servidor:', { status: res.status, result });
 
       if (res.ok) {
         await loadLoanTypes(); // Recargar los datos
         resetForm();
+        alert(`Crédito ${editingLoan ? 'actualizado' : 'creado'} correctamente`);
       } else {
+        console.error('❌ Error del servidor:', result);
         throw new Error(result.error || `Error al ${editingLoan ? 'actualizar' : 'crear'} el crédito`);
       }
     } catch (error: any) {
@@ -159,6 +181,7 @@ export default function LoanTypesPage() {
     setEditingLoan(loan);
     setFormData({ 
       ...loan,
+      id_credito: loan.id_credito, // ✅ CORRECCIÓN: Asegurar que el ID se incluya
       estado: Boolean(loan.estado) // ✅ CORRECCIÓN: Asegurar que sea boolean
     });
     setSelectedIndirects(loan.cobros_indirectos?.map(ci => ci.id_indirecto) || []);

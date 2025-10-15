@@ -6,17 +6,24 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ArrowRight, FileText } from 'lucide-react';
 import { useInvestments } from '../../hooks/useInvestments';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import { useRouter } from 'next/navigation';
 import { exportInvestmentToPDF } from '../../utils/exportUtils';
+import { useAuth } from '@/features/auth';
 
 export const InvestmentsResult: React.FC = () => {
     const { currentCalculation, clearCalculation, selectedProducto } = useInvestments();
+    const { user } = useAuth();
     const router = useRouter();
     const [exporting, setExporting] = useState<'pdf' | null>(null);
     const [showProjectionModal, setShowProjectionModal] = useState(false);
+    const [clienteName, setClienteName] = useState('');
+    
+    const isAdmin = user?.role === 'admin';
 
     const handleSolicitarInversion = () => {
         if (!currentCalculation?.formData) return;
@@ -37,7 +44,8 @@ export const InvestmentsResult: React.FC = () => {
         try {
             setExporting('pdf');
             const { amount, term } = currentCalculation.formData;
-            await exportInvestmentToPDF(currentCalculation, selectedProducto, amount, term);
+            const finalClienteName = isAdmin && clienteName.trim() ? clienteName.trim() : undefined;
+            await exportInvestmentToPDF(currentCalculation, selectedProducto, amount, term, finalClienteName);
         } catch (error: any) {
             alert(error.message);
         } finally {
@@ -172,6 +180,35 @@ export const InvestmentsResult: React.FC = () => {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Campo para el nombre del cliente - Solo visible para admin */}
+            {isAdmin && (
+                <Card className="border-indigo-200 dark:border-indigo-800 bg-gradient-to-r from-indigo-50/10 to-purple-50/10 dark:from-indigo-900/20 dark:to-purple-900/20">
+                    <CardHeader className="pb-3">
+                        <CardTitle className="text-indigo-800 dark:text-indigo-400 text-sm">
+                            Información del Cliente (Opcional)
+                        </CardTitle>
+                        <CardDescription className="text-indigo-600 dark:text-indigo-300 text-xs">
+                            Especifica el nombre del cliente para personalizar el documento PDF
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                        <div className="space-y-2">
+                            <Label htmlFor="clienteName" className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+                                Nombre del Cliente
+                            </Label>
+                            <Input
+                                id="clienteName"
+                                type="text"
+                                placeholder="Ingrese el nombre del cliente..."
+                                value={clienteName}
+                                onChange={(e) => setClienteName(e.target.value)}
+                                className="border-indigo-200 dark:border-indigo-700 focus:border-indigo-400 focus:ring-indigo-400"
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Botones de Acción */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
