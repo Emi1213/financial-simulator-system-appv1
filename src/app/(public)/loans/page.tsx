@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { exportToPDF, exportToExcel } from '@/utils/exportUtils';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +55,10 @@ interface SimulationResult {
 type TipoAmortizacion = 'frances' | 'aleman';
 
 export default function LoansPage() {
+  // Hook de autenticación
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = isAuthenticated && user?.role === 'admin';
+  
   const [loanTypes, setLoanTypes] = useState<LoanType[]>([]);
   const [selectedLoan, setSelectedLoan] = useState<string>('');
   const [monto, setMonto] = useState<number>(10000);
@@ -67,6 +72,9 @@ export default function LoansPage() {
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState<'pdf' | 'excel' | null>(null);
   const [showAmortizationModal, setShowAmortizationModal] = useState(false);
+  
+  // Estado para el nombre del cliente (solo para administradores)
+  const [clienteName, setClienteName] = useState<string>('');
 
   // Cargar tipos de crédito desde la base de datos
   useEffect(() => {
@@ -246,7 +254,10 @@ export default function LoansPage() {
       const loan = loanTypes.find(l => l.id_credito.toString() === selectedLoan);
       if (!loan) return;
 
-      await exportToPDF(resultado, loan, monto, tasaInteres, plazo, tipoAmortizacion);
+      // Si es admin y ha especificado un cliente, incluir esa información
+      const clienteInfo = isAdmin && clienteName.trim() ? clienteName.trim() : undefined;
+      
+      await exportToPDF(resultado, loan, monto, tasaInteres, plazo, tipoAmortizacion, clienteInfo);
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -262,7 +273,10 @@ export default function LoansPage() {
       const loan = loanTypes.find(l => l.id_credito.toString() === selectedLoan);
       if (!loan) return;
 
-      await exportToExcel(resultado, loan, monto, tasaInteres, plazo, tipoAmortizacion);
+      // Si es admin y ha especificado un cliente, incluir esa información
+      const clienteInfo = isAdmin && clienteName.trim() ? clienteName.trim() : undefined;
+      
+      await exportToExcel(resultado, loan, monto, tasaInteres, plazo, tipoAmortizacion, clienteInfo);
     } catch (error: any) {
       alert(error.message);
     } finally {
@@ -559,6 +573,43 @@ export default function LoansPage() {
                 </CardContent>
               </Card>
               </div>
+
+              {/* Campo para nombre del cliente (solo administradores) */}
+              {isAdmin && (
+                <div>
+                  <Card className="border-blue-200 ">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm text-blue-800 flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Información del Cliente
+                      </CardTitle>
+                      <CardDescription className="text-xs text-blue-600">
+                        Como administrador, puedes especificar para qué cliente es esta simulación
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <Label htmlFor="clientName" className="text-sm font-medium text-blue-800">
+                          Nombre del Cliente (Opcional)
+                        </Label>
+                        <Input
+                          id="clientName"
+                          type="text"
+                          value={clienteName}
+                          onChange={(e) => setClienteName(e.target.value)}
+                          placeholder="Ej: Juan Pérez García"
+                          className="border-blue-300 focus:border-blue-500 focus:ring-blue-500/20"
+                        />
+                        <p className="text-xs text-blue-600">
+                          Este nombre aparecerá en el documento PDF como "Documento emitido para el cliente..."
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
 
               {/* Botón de Exportación separado */}
               <div>

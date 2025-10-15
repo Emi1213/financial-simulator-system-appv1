@@ -79,7 +79,8 @@ export const exportToPDF = async (
   monto: number,
   tasaInteres: number,
   plazo: number,
-  tipoAmortizacion: string
+  tipoAmortizacion: string,
+  clienteName?: string
 ) => {
   try {
     const institution = await getInstitutionData();
@@ -354,8 +355,8 @@ export const exportToPDF = async (
       yPosition += 25;
     }
     
-    // Timestamp
-    checkPageBreak(10);
+    // Timestamp y información del cliente
+    checkPageBreak(15);
     const timestamp = new Date().toLocaleDateString('es-ES', { 
       year: 'numeric', 
       month: 'long', 
@@ -363,7 +364,16 @@ export const exportToPDF = async (
       hour: '2-digit',
       minute: '2-digit'
     });
-    addCardText(`Documento generado el ${timestamp}`, pageWidth / 2, yPosition + 5, 8, false, '#9ca3af', 'center');
+    
+    if (clienteName) {
+      // Información del cliente para administradores
+      addCardText(`Documento emitido por ${nombreEmpresa} para el cliente ${clienteName}`, 
+        pageWidth / 2, yPosition + 5, 9, true, '#374151', 'center');
+      addCardText(`el ${timestamp}`, pageWidth / 2, yPosition + 10, 8, false, '#9ca3af', 'center');
+    } else {
+      // Información general
+      addCardText(`Documento generado el ${timestamp}`, pageWidth / 2, yPosition + 5, 8, false, '#9ca3af', 'center');
+    }
 
     addWatermarkToAllPages();
 
@@ -385,7 +395,8 @@ export const exportToExcel = async (
   monto: number,
   tasaInteres: number,
   plazo: number,
-  tipoAmortizacion: string
+  tipoAmortizacion: string,
+  clienteName?: string
 ) => {
   try {
     const institution = await getInstitutionData();
@@ -436,13 +447,21 @@ export const exportToExcel = async (
       if (institution.correo) resumenData.push(['Correo Electrónico:', institution.correo]);
     }
     resumenData.push(['']);
-    resumenData.push(['Documento generado el:', new Date().toLocaleDateString('es-ES', {
+    
+    const timestamp = new Date().toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    })]);
+    });
+    
+    if (clienteName) {
+      resumenData.push(['Documento emitido por:', `${nombreEmpresa} para el cliente ${clienteName}`]);
+      resumenData.push(['Fecha de emisión:', timestamp]);
+    } else {
+      resumenData.push(['Documento generado el:', timestamp]);
+    }
 
     const wsResumen = utils.aoa_to_sheet(resumenData);
     wsResumen['!cols'] = [{ width: 25 }, { width: 35 }];
