@@ -105,7 +105,7 @@ export async function POST(request: Request) {
         const sql = `
       INSERT INTO inversiones 
       (tipo_inversion_id, nombre, descripcion, estado, monto_minimo, monto_maximo, plazo_min_meses, plazo_max_meses, tasa_anual)
-      VALUES ($1, $2, $3, 'Activo', $4, $5, $6, $7, $8)
+      VALUES (?, ?, ?, 'Activo', ?, ?, ?, ?, ?)
     `;
 
         const result = await query(sql, [
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
                 t.tipo_tasa
             FROM inversiones p
             INNER JOIN tipo_inversion t ON p.tipo_inversion_id = t.id
-            WHERE p.id = $1
+            WHERE p.id = ?
         `;
 
         const newProductoResults = await query(selectSql, [result.insertId]) as DatabaseProductoInversion[];

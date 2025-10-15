@@ -4,10 +4,10 @@ import { query } from '@/lib/database';
 // GET - Obtener solicitudes de inversión de un usuario específico
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id: userId } = await params;
+    const userId = params.id;
 
     if (!userId) {
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function GET(
         ROUND(si.monto * (i.tasa_anual / 100) * (si.plazo_meses / 12), 2) AS ganancia_estimada
       FROM solicitud_inversion si
       INNER JOIN inversiones i ON si.id_inversion = i.id
-      WHERE si.id_usuario = $1
+      WHERE si.id_usuario = ?
       ORDER BY si.fecha_solicitud DESC`,
       [userId]
     );

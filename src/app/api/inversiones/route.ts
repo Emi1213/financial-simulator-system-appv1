@@ -9,7 +9,7 @@ export async function GET() {
         id,
         nombre,
         descripcion,
-        tasa_anual,
+        tasa_interes,
         plazo_minimo,
         plazo_maximo,
         monto_minimo,

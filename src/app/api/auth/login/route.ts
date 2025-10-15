@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     // Consulta a la base de datos
     console.log('Querying database...');
-    const sql = 'SELECT * FROM usuarios WHERE usuario = $1 AND clave = $2';
+    const sql = 'SELECT * FROM usuarios WHERE usuario = ? AND clave = ?';
     const users = await query(sql, [username, password]) as any[];
     
     console.log('Database result:', users);

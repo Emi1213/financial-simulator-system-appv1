@@ -34,9 +34,9 @@ export async function POST(request: Request) {
       // Actualizar registro existente
       const updateSql = `
         UPDATE info_inst SET 
-          nombre = $1, logo = $2, slogan = $3, color_primario = $4, color_secundario = $5,
-          direccion = $6, pais = $7, owner = $8, telefono = $9, correo = $10, estado = $11
-        WHERE id_info = $12
+          nombre = ?, logo = ?, slogan = ?, color_primario = ?, color_secundario = ?,
+          direccion = ?, pais = ?, owner = ?, telefono = ?, correo = ?, estado = ?
+        WHERE id_info = ?
       `;
       result = await query(updateSql, [
         data.nombre, data.logo, data.slogan, data.color_primario, data.color_secundario,
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         INSERT INTO info_inst (
           nombre, logo, slogan, color_primario, color_secundario,
           direccion, pais, owner, telefono, correo, estado
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       result = await query(insertSql, [
         data.nombre, data.logo, data.slogan, data.color_primario, data.color_secundario,

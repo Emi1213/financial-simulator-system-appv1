@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
     // Validar que el usuario existe
     const userCheck = await query(
-      'SELECT id FROM usuarios WHERE id = $1',
+      'SELECT id FROM usuarios WHERE id = ?',
       [idUsuario]
     );
 
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     // Verificar si ya existe una solicitud pendiente para esta inversión y usuario
     const existingSolicitud = await query(
       `SELECT id_solicitud FROM solicitud_inversion 
-       WHERE id_usuario = $1 AND id_inversion = $2 AND estado = 'Pendiente'`,
+       WHERE id_usuario = ? AND id_inversion = ? AND estado = 'Pendiente'`,
       [idUsuario, idInversion]
     );
 
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
     const result = await query(
       `INSERT INTO solicitud_inversion 
         (id_usuario, id_inversion, monto, plazo_meses, ingresos, egresos, empresa, ruc, tipo_empleo, documento_validacion_uri, estado)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'Pendiente')`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')`,
       [
         idUsuario, 
         idInversion, 

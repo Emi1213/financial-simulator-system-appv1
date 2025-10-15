@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server";
-import { query } from "@/lib/database";
+import { NextResponse } from 'next/server';
+import { query } from '@/lib/database';
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id: userId } = await params;
+    const userId = params.id;
 
     if (!userId) {
       return NextResponse.json(
-        { error: "ID de usuario requerido" },
+        { error: 'ID de usuario requerido' },
         { status: 400 }
       );
     }
@@ -31,14 +31,14 @@ export async function GET(
         u.usuario
       FROM financial_perfil_usuario p
       INNER JOIN usuarios u ON p.id_usuario = u.id
-      WHERE p.id_usuario = $1
+      WHERE p.id_usuario = ?
     `;
 
     const results = await query(profileQuery, [userId]);
-
+    
     if (!Array.isArray(results) || results.length === 0) {
       return NextResponse.json(
-        { error: "Perfil no encontrado" },
+        { error: 'Perfil no encontrado' },
         { status: 404 }
       );
     }
@@ -57,10 +57,14 @@ export async function GET(
       cedula_frontal_uri: profile.cedula_frontal_uri,
       cedula_reverso_uri: profile.cedula_reverso_uri,
       selfie_uri: profile.selfie_uri,
-      verificado: profile.verificado,
+      verificado: profile.verificado
     });
+
   } catch (error: any) {
-    console.error("Error obteniendo perfil:", error);
-    return NextResponse.json({ error: "Error del servidor" }, { status: 500 });
+    console.error('Error obteniendo perfil:', error);
+    return NextResponse.json(
+      { error: 'Error del servidor' },
+      { status: 500 }
+    );
   }
 }

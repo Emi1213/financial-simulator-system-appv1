@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
     const sql = `
       INSERT INTO indirect (nombre, tipo, interes, tipo_interes)
-      VALUES ($1, $2, $3, $4)
+      VALUES (?, ?, ?, ?)
     `;
 
     const result = await query(sql, [
@@ -90,8 +90,8 @@ export async function PUT(request: Request) {
 
     const sql = `
       UPDATE indirect SET 
-        nombre = $1, tipo = $2, interes = $3, tipo_interes = $4
-      WHERE id_indirecto = $5
+        nombre = ?, tipo = ?, interes = ?, tipo_interes = ?
+      WHERE id_indirecto = ?
     `;
 
     await query(sql, [
@@ -124,13 +124,13 @@ export async function DELETE(request: Request) {
     }
 
     // Verificar si existe antes de eliminar
-    const existing = await query('SELECT id_indirecto FROM indirect WHERE id_indirecto = $1', [id_indirecto]) as any[];
+    const existing = await query('SELECT id_indirecto FROM indirect WHERE id_indirecto = ?', [id_indirecto]) as any[];
     if (existing.length === 0) {
       return NextResponse.json({ error: 'El cobro indirecto no existe' }, { status: 404 });
     }
 
     // Eliminar
-    await query('DELETE FROM indirect WHERE id_indirecto = $1', [id_indirecto]);
+    await query('DELETE FROM indirect WHERE id_indirecto = ?', [id_indirecto]);
 
     return NextResponse.json({ success: true, message: 'Cobro indirecto eliminado' });
 
