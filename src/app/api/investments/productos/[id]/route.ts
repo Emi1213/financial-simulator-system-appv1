@@ -55,7 +55,7 @@ export async function GET(
                 t.tipo_tasa
             FROM inversiones p
             INNER JOIN tipo_inversion t ON p.tipo_inversion_id = t.id
-            WHERE p.id = ?
+            WHERE p.id = $1
         `;
 
         const results = await query(sql, [productoId]) as DatabaseProductoInversion[];
@@ -137,9 +137,9 @@ export async function PUT(
 
         const updateSql = `
             UPDATE inversiones 
-            SET tipo_inversion_id = ?, nombre = ?, descripcion = ?, monto_minimo = ?, 
-                monto_maximo = ?, plazo_min_meses = ?, plazo_max_meses = ?, tasa_anual = ?
-            WHERE id = ?
+            SET tipo_inversion_id = $1, nombre = $2, descripcion = $3, monto_minimo = $4, 
+                monto_maximo = $5, plazo_min_meses = $6, plazo_max_meses = $7, tasa_anual = $8
+            WHERE id = $9
         `;
 
         await query(updateSql, [
@@ -174,7 +174,7 @@ export async function PUT(
                 t.tipo_tasa
             FROM inversiones p
             INNER JOIN tipo_inversion t ON p.tipo_inversion_id = t.id
-            WHERE p.id = ?
+            WHERE p.id = $1
         `;
 
         const updatedResults = await query(selectSql, [productoId]) as DatabaseProductoInversion[];
@@ -225,7 +225,7 @@ export async function DELETE(
         }
 
         // Verificar que el producto existe
-        const checkSql = 'SELECT id FROM inversiones WHERE id = ?';
+        const checkSql = 'SELECT id FROM inversiones WHERE id = $1';
         const existingResults = await query(checkSql, [productoId]);
 
         if (!Array.isArray(existingResults) || existingResults.length === 0) {
@@ -233,7 +233,7 @@ export async function DELETE(
         }
 
         // En lugar de eliminar físicamente, marcamos como inactivo
-        const updateSql = 'UPDATE inversiones SET estado = ? WHERE id = ?';
+        const updateSql = 'UPDATE inversiones SET estado = $1 WHERE id = $2';
         await query(updateSql, ['Inactivo', productoId]);
 
         return NextResponse.json({ message: 'Producto de inversión marcado como inactivo exitosamente' });

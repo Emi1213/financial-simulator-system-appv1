@@ -122,21 +122,111 @@ export function SolicitudCard({ solicitud, onGestionar, isProcessing }: Solicitu
           
         </div>
 
-        {/* Información laboral */}
-        <div className="bg-gray-50 p-3 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <Building className="h-4 w-4" />
-            <span className="font-medium text-sm">Información Laboral</span>
+        {/* Información laboral y Gestión */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 h-full">
+              <div className="flex items-center gap-2 mb-3">
+                <Building className="h-4 w-4 text-blue-600" />
+                <span className="font-medium text-sm">Información Laboral</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                <div className="space-y-1">
+                  <span className="text-gray-600 dark:text-gray-400 text-xs">Empresa</span>
+                  <p className="font-medium">{solicitud.empresa || 'N/A'}</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-gray-600 dark:text-gray-400 text-xs">RUC</span>
+                  <p className="font-medium">{solicitud.ruc || 'N/A'}</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-gray-600 dark:text-gray-400 text-xs">Tipo de Empleo</span>
+                  <p className="font-medium">{solicitud.tipo_empleo || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-            <div>
-              <span className="font-medium">Empresa:</span> {solicitud.empresa || 'N/A'}
-            </div>
-            <div>
-              <span className="font-medium">RUC:</span> {solicitud.ruc || 'N/A'}
-            </div>
-            <div>
-              <span className="font-medium">Tipo:</span> {solicitud.tipo_empleo || 'N/A'}
+          
+          <div className="lg:col-span-1">
+            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700 h-full flex flex-col justify-center items-center space-y-3">
+              <div className="text-center">
+                <FileText className="h-6 w-6 mx-auto mb-2 text-purple-600" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Acciones de Gestión</span>
+              </div>
+              
+              {/* Ver documento */}
+              {solicitud.documento_validacion_uri && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(solicitud.documento_validacion_uri, '_blank')}
+                  className="w-full text-xs"
+                >
+                  <Eye className="h-3 w-3 mr-1" />
+                  Ver Documento
+                </Button>
+              )}
+
+              {/* Solo mostrar botón de gestión si está pendiente */}
+              {solicitud.estado === 'Pendiente' && (
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="w-full text-xs bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-700 hover:from-blue-100 hover:to-purple-100 dark:hover:from-blue-800/30 dark:hover:to-purple-800/30"
+                    >
+                      <FileText className="h-3 w-3 mr-1" />
+                      Gestionar Solicitud
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Gestionar Solicitud</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm font-medium mb-2">
+                          Solicitud de {solicitud.nombre_usuario}
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {formatCurrency(solicitud.monto)} por {solicitud.plazo_meses} meses
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium">Observación (opcional)</label>
+                        <Textarea
+                          value={observacion}
+                          onChange={(e) => setObservacion(e.target.value)}
+                          placeholder="Comentarios sobre la decisión..."
+                          className="mt-1"
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleAprobar}
+                          disabled={isProcessing}
+                          className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
+                        >
+                          <Check className="h-4 w-4 mr-1" />
+                          Aprobar
+                        </Button>
+                        <Button
+                          onClick={handleRechazar}
+                          disabled={isProcessing}
+                          variant="destructive"
+                          className="flex-1"
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Rechazar
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
           </div>
         </div>
@@ -173,83 +263,16 @@ export function SolicitudCard({ solicitud, onGestionar, isProcessing }: Solicitu
 
         {/* Observación del admin */}
         {solicitud.observacion_admin && (
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <p className="text-sm font-medium text-blue-800 mb-1">Observación del administrador:</p>
-            <p className="text-sm text-blue-700">{solicitud.observacion_admin}</p>
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="h-4 w-4 text-blue-600" />
+              <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">Observación del Administrador</p>
+            </div>
+            <p className="text-sm text-blue-700 dark:text-blue-300 bg-white/50 dark:bg-gray-800/50 p-2 rounded border">
+              {solicitud.observacion_admin}
+            </p>
           </div>
         )}
-
-        {/* Acciones */}
-        <div className="flex gap-2 pt-2">
-          {/* Ver documento */}
-          {solicitud.documento_validacion_uri && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.open(solicitud.documento_validacion_uri, '_blank')}
-            >
-              <Eye className="h-4 w-4 mr-1" />
-              Ver Documento
-            </Button>
-          )}
-
-          {/* Solo mostrar botones de gestión si está pendiente */}
-          {solicitud.estado === 'Pendiente' && (
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <FileText className="h-4 w-4 mr-1" />
-                  Gestionar
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Gestionar Solicitud</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium mb-2">
-                      Solicitud de {solicitud.nombre_usuario}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {formatCurrency(solicitud.monto)} por {solicitud.plazo_meses} meses
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium">Observación (opcional)</label>
-                    <Textarea
-                      value={observacion}
-                      onChange={(e) => setObservacion(e.target.value)}
-                      placeholder="Comentarios sobre la decisión..."
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={handleAprobar}
-                      disabled={isProcessing}
-                      className="flex-1 bg-green-600 hover:bg-green-700"
-                    >
-                      <Check className="h-4 w-4 mr-1" />
-                      Aprobar
-                    </Button>
-                    <Button
-                      onClick={handleRechazar}
-                      disabled={isProcessing}
-                      variant="destructive"
-                      className="flex-1"
-                    >
-                      <X className="h-4 w-4 mr-1" />
-                      Rechazar
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
-        </div>
       </CardContent>
     </Card>
   );

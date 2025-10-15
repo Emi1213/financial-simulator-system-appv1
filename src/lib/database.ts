@@ -1,25 +1,21 @@
 // src/lib/database.ts
-import mysql from 'mysql2/promise';
+import { Pool } from 'pg';
 
-// Configuración directa - ajusta según tu XAMPP
-const pool = mysql.createPool({
-  host: 'localhost',
-  port: 3306,
-  user: 'root',
-  password: '', // Normalmente vacío en XAMPP
-  database: 'financial', // Nombre que quieras usar
-  waitForConnections: true,
-  connectionLimit: 10,
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '5432'),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  ssl: { rejectUnauthorized: false },
 });
 
 export async function query(sql: string, params?: any[]) {
+  const client = await pool.connect();
   try {
-    const [rows] = await pool.execute(sql, params);
-    return rows;
-  } catch (error) {
-    console.error('Error de base de datos:', error);
-    throw error;
+    const res = await client.query(sql, params);
+    return res.rows;
+  } finally {
+    client.release();
   }
 }
-
-export default pool;

@@ -37,7 +37,7 @@ export async function GET(
         ROUND(si.monto * (i.tasa_anual / 100) * (si.plazo_meses / 12), 2) AS ganancia_estimada
       FROM solicitud_inversion si
       INNER JOIN inversiones i ON si.id_inversion = i.id
-      WHERE si.id_usuario = ?
+      WHERE si.id_usuario = $1
       ORDER BY si.fecha_solicitud DESC`,
       [userId]
     );

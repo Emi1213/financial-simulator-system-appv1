@@ -30,7 +30,7 @@ export async function GET(
         monto_maximo,
         activo
       FROM inversiones 
-      WHERE id = ? AND activo = 1
+      WHERE id = $1 AND activo = 1
     `,
       [id]
     );

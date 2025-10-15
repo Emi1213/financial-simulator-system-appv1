@@ -24,7 +24,7 @@ export async function GET(
     const selfieQuery = `
       SELECT selfie_uri
       FROM financial_perfil_usuario 
-      WHERE id_usuario = ?
+      WHERE id_usuario = $1
     `;
 
     console.log("📊 [SELFIE API] Ejecutando query con userId:", userId);

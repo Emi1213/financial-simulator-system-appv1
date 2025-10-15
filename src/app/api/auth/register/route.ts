@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     // 2️⃣ Verificar que el usuario sea único
     console.log('Checking if user exists...');
     const existing = await query(
-      'SELECT id FROM usuarios WHERE usuario = ? OR cedula = ?',
+      'SELECT id FROM usuarios WHERE usuario = $1 OR cedula = $2',
       [usuario, cedula]
     ) as any[];
     
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     // 3️⃣ Crear usuario base (tipo 0 = cliente)
     console.log('Creating base user...');
     const result = await query(
-      'INSERT INTO usuarios (cedula, usuario, clave, tipo, nombre) VALUES (?, ?, ?, 0, ?)',
+      'INSERT INTO usuarios (cedula, usuario, clave, tipo, nombre) VALUES ($1, $2, $3, 0, $4)',
       [cedula, usuario, clave, `${primerNombre} ${primerApellido}`]
     ) as any;
 
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
       `INSERT INTO financial_perfil_usuario 
         (id_usuario, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido,
          fecha_nacimiento, telefono, cedula_frontal_uri, cedula_reverso_uri, selfie_uri, verificado)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
       [
         userId,
         primerNombre,

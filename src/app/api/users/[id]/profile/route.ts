@@ -31,7 +31,7 @@ export async function GET(
         u.usuario
       FROM financial_perfil_usuario p
       INNER JOIN usuarios u ON p.id_usuario = u.id
-      WHERE p.id_usuario = ?
+      WHERE p.id_usuario = $1
     `;
 
     const results = await query(profileQuery, [userId]);
